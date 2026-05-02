@@ -765,6 +765,24 @@
 
     .rm-footer a:hover { text-decoration: underline; }
 
+    /* ─── Demo Classifier ───────────────────────────────── */
+    .demo-example-btn {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--rm-primary);
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .demo-example-btn:hover {
+      background: rgba(99,102,241,0.15);
+      border-color: var(--rm-primary);
+    }
+
     /* ─── Responsive ────────────────────────────────────── */
     @media (max-width: 600px) {
       .rm-navbar-links { display: none; }
@@ -1470,6 +1488,128 @@
         document.execCommand('copy');
         document.body.removeChild(ta);
       });
+    }
+
+    // ── Demo Classifier ──────────────────────────
+    const EXAMPLES = [
+      "The model returned a confident answer citing a clinical trial that does not exist, causing the downstream medical decision system to flag a false contraindication between two common medications.",
+      "The extraction pipeline required strict JSON output with a required confidence field. The model omitted it in about 12% of responses, silently corrupting analytics dashboards for three weeks.",
+      "A customer service assistant retrieved internal RAG documents containing PII from unrelated customer accounts and included that PII in its response, triggering a GDPR incident.",
+      "An autonomous coding agent tasked with cleaning up unused files incorrectly classified a production configuration file as unused and deleted it, causing a 47-minute service outage.",
+      "A writing assistant consistently rated user-generated content higher when users expressed confidence, inflating quality scores by 0.8 points on a 5-point scale across 10,000 sessions."
+    ];
+
+    const CLASSES = {
+      C1: {
+        label: "C1 · Factual & Semantic",
+        color: "#4338ca", bg: "rgba(99,102,241,0.1)",
+        severity: "High", sevColor: "#d97706",
+        budget: "FC-B (0.5%)",
+        description: "The output contains factually incorrect, hallucinated, or semantically contradictory content — fabricated citations, wrong numbers, or self-contradiction.",
+        keywords: ["hallucin","fabricat","incorrect","factual","wrong","false","does not exist","non-existent","made up","inaccurat","confabul","citation","contradict","inconsist","numerically","false answer","wrong answer","untrue","misleading"]
+      },
+      C2: {
+        label: "C2 · Instruction-Following",
+        color: "#0369a1", bg: "rgba(14,165,233,0.1)",
+        severity: "Medium", sevColor: "#4338ca",
+        budget: "FC-C (2%)",
+        description: "The model ignored, partially followed, or over-interpreted explicit instructions — format violations, missing required fields, persona drift, or constraint violations.",
+        keywords: ["format","schema","json","field","omit","missing","instruct","constraint","ignor","violat","persona","drift","partial","comply","required field","wrong format","structure","template","length"]
+      },
+      C3: {
+        label: "C3 · Safety & Policy",
+        color: "#be123c", bg: "rgba(244,63,94,0.1)",
+        severity: "Critical", sevColor: "#dc2626",
+        budget: "FC-A (0.1%)",
+        description: "The output violates safety guardrails, produces harmful content, leaks PII, or circumvents moderation — including over-refusal and under-refusal failures.",
+        keywords: ["pii","personal data","privacy","gdpr","harmful","unsafe","safety","guardrail","moderat","refus","jailbreak","leak","expos","sensitive","confidential","policy","data breach","personal information","private data","hipaa"]
+      },
+      C4: {
+        label: "C4 · Context Handling",
+        color: "#b45309", bg: "rgba(245,158,11,0.1)",
+        severity: "High", sevColor: "#d97706",
+        budget: "FC-B (0.5%)",
+        description: "Performance failures tied to context window management — lost information in long contexts, recency bias, RAG attribution errors, or contradictory context chunks.",
+        keywords: ["context","long","window","rag","retrieval","forgot","lost","memory","recency","bias","attribution","chunk","long document","missed","context length","earlier","previous section","clause"]
+      },
+      C5: {
+        label: "C5 · Agentic Execution",
+        color: "#6d28d9", bg: "rgba(139,92,246,0.1)",
+        severity: "Critical", sevColor: "#dc2626",
+        budget: "FC-A (0.1%)",
+        description: "Failures specific to agentic or tool-use deployments — wrong tool selection, malformed arguments, planning loops, premature termination, or irreversible real-world actions.",
+        keywords: ["agent","tool","action","delet","execut","loop","plan","autonom","irrevers","outage","production","deploy","pipeline","workflow","coding agent","ran autonomously","performed action","overwrite","database"]
+      },
+      C6: {
+        label: "C6 · Latent Misalignment",
+        color: "#047857", bg: "rgba(16,185,129,0.1)",
+        severity: "Low–Medium", sevColor: "#15803d",
+        budget: "FC-C (2%)",
+        description: "Subtle, systematic biases emerging over large output corpora — sycophantic drift, demographic imbalances, deceptive compliance, or implicit value steering.",
+        keywords: ["sycophant","bias","drift","align","implicit","subtle","systematic","rating","score","inflat","demographic","representation","value","steer","deceiv","flatter","over-positive","consistently higher","consistently rate","approv"]
+      }
+    };
+
+    function loadExample(i) {
+      document.getElementById('demoInput').value = EXAMPLES[i];
+      document.getElementById('demoResults').style.display = 'none';
+    }
+
+    function runClassifier() {
+      const text = document.getElementById('demoInput').value.trim().toLowerCase();
+      if (!text) {
+        const inp = document.getElementById('demoInput');
+        inp.style.borderColor = '#dc2626';
+        inp.placeholder = 'Please enter a failure description first…';
+        setTimeout(() => {
+          inp.style.borderColor = 'var(--rm-border)';
+          inp.placeholder = 'e.g. The model returned a confident answer citing a clinical trial that does not exist…';
+        }, 1500);
+        return;
+      }
+
+      // Score each class by keyword hits
+      const scores = {};
+      for (const [cls, def] of Object.entries(CLASSES)) {
+        scores[cls] = def.keywords.filter(kw => text.includes(kw)).length;
+      }
+
+      const ranked = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      const topScore = ranked[0][1];
+      const predicted = topScore === 0
+        ? [ranked[0][0]]
+        : ranked.filter(([, s]) => s > 0).map(([c]) => c);
+
+      // Build result cards
+      const cardsEl = document.getElementById('demoCards');
+      cardsEl.innerHTML = '';
+      predicted.slice(0, 3).forEach(cls => {
+        const def = CLASSES[cls];
+        const hits = scores[cls];
+        const conf = topScore === 0 ? 'Low confidence' : hits >= 3 ? 'High confidence' : hits === 2 ? 'Medium confidence' : 'Low confidence';
+        const confColor = conf === 'High confidence' ? '#15803d' : conf === 'Medium confidence' ? '#b45309' : '#64748b';
+        cardsEl.innerHTML += `
+          <div style="background:${def.bg};border:1px solid ${def.color}33;border-radius:var(--rm-radius);padding:1.1rem;border-top:3px solid ${def.color};">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:700;color:${def.color};margin-bottom:0.5rem;">${def.label}</div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.6rem;">
+              <span style="font-size:0.72rem;font-weight:600;background:rgba(0,0,0,0.06);border-radius:999px;padding:0.15rem 0.55rem;color:${def.sevColor};">⚠ ${def.severity}</span>
+              <span style="font-size:0.72rem;font-weight:600;background:rgba(0,0,0,0.06);border-radius:999px;padding:0.15rem 0.55rem;color:var(--rm-muted);">Budget: ${def.budget}</span>
+            </div>
+            <div style="font-size:0.72rem;color:${confColor};font-weight:600;">${conf}</div>
+          </div>`;
+      });
+
+      // Explanation
+      const topDef = CLASSES[predicted[0]];
+      document.getElementById('demoExplain').innerHTML =
+        `<strong style="color:var(--rm-ink);">Why ${predicted[0]}?</strong> ${topDef.description}` +
+        (predicted.length > 1
+          ? `<br/><br/><strong style="color:var(--rm-ink);">Also detected:</strong> ${predicted.slice(1).join(', ')} — multi-label co-occurrence is common (38% of real incidents involve 2+ classes).`
+          : '');
+
+      const results = document.getElementById('demoResults');
+      results.style.display = 'block';
+      results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     // ── Smooth active nav highlight ─────────────
