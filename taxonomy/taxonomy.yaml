@@ -1,0 +1,150 @@
+taxonomy:
+  version: "1.0"
+  name: "LLM Production Failure Taxonomy"
+  description: "A 6-class system-level taxonomy for categorising failures in production LLM systems"
+
+  failure_classes:
+    CLASS_1_MODEL_DRIFT:
+      name: "Model Drift"
+      description: "Output distribution shifting over time — behaviour differs from baseline without intentional change"
+      sub_classes:
+        "1a":
+          name: "Upstream Model Update"
+          description: "Provider silently updated base model; downstream behaviour changed without notice"
+        "1b":
+          name: "Production Distribution Shift"
+          description: "Real-world query distribution drifted away from training/eval distribution"
+        "1c":
+          name: "Context Window Saturation"
+          description: "Degraded output quality when context approaches or exceeds model capacity"
+
+    CLASS_2_INFRASTRUCTURE:
+      name: "Infrastructure Failure"
+      description: "Serving stack failures — compute, networking, routing, or API contract failures"
+      sub_classes:
+        "2a":
+          name: "Latency Regression"
+          description: "P99/P95 latency increased beyond SLO after model update or traffic surge"
+        "2b":
+          name: "OOM / Resource Exhaustion"
+          description: "Out-of-memory or KV cache exhaustion causing request drops or 500 errors"
+        "2c":
+          name: "Routing Misclassification"
+          description: "Multi-model router sending queries to wrong model tier"
+        "2d":
+          name: "API Breaking Change"
+          description: "Upstream provider changed API contract without versioning; downstream silently broke"
+
+    CLASS_3_INTEGRATION:
+      name: "Integration Failure"
+      description: "Application/LLM boundary failures — failures at the seam between application logic and LLM"
+      sub_classes:
+        "3a":
+          name: "Prompt Injection"
+          description: "Adversarial input overrides system instructions or extracts confidential context"
+        "3b":
+          name: "Context Truncation"
+          description: "Input silently truncated beyond context window; model answers from partial context"
+        "3c":
+          name: "Tool-Call Hallucination"
+          description: "Agent invokes non-existent tools or enters infinite tool-call loops"
+        "3d":
+          name: "RAG Retrieval Mismatch"
+          description: "Retrieval layer returns stale, irrelevant, or out-of-date documents"
+        "3e":
+          name: "Multi-Turn Corruption"
+          description: "Model incorrectly propagates user-asserted facts across conversation turns"
+
+    CLASS_4_EVALUATION:
+      name: "Evaluation Failure"
+      description: "Eval framework failures — metrics that fail to capture real production behaviour"
+      sub_classes:
+        "4a":
+          name: "Metric Gaming"
+          description: "Model optimised for proxy metric at cost of actual user utility (Goodhart's Law)"
+        "4b":
+          name: "Eval Contamination"
+          description: "Benchmark test sets present in pre-training data; reported scores inflated"
+        "4c":
+          name: "Production Distribution Gap"
+          description: "Eval distribution does not match production query distribution"
+        "4d":
+          name: "Point vs Distributional"
+          description: "Single-point eval misses distributional failures visible only at scale"
+
+    CLASS_5_SAFETY_COMPLIANCE:
+      name: "Safety and Compliance Failure"
+      description: "Safety and regulatory failures — harmful outputs, data breaches, and regulatory violations"
+      sub_classes:
+        "5a":
+          name: "PII Leak"
+          description: "Personal or sensitive data exposed to unauthorised parties via LLM output"
+        "5b":
+          name: "Hallucinated Citations"
+          description: "Model fabricates authoritative references (cases, statutes, papers)"
+        "5c":
+          name: "Policy Violation"
+          description: "Output violates explicit policy, clinical guideline, or organisational constraint"
+        "5d":
+          name: "Auditability Gap"
+          description: "Decision cannot be explained or audited as required by regulation"
+        "5e":
+          name: "Copyright Reproduction"
+          description: "Model reproduces copyrighted content verbatim from training data"
+
+    CLASS_6_OPERATIONAL:
+      name: "Operational Failure"
+      description: "Operations and process failures — gaps in monitoring, runbooks, escalation, and release gates"
+      sub_classes:
+        "6a":
+          name: "Monitoring Blind-Spot"
+          description: "No alert or metric existed to detect the failure; discovered via user complaints"
+        "6b":
+          name: "Runbook Absence"
+          description: "No documented procedure for common operational event (rollback, restart, scaling)"
+        "6c":
+          name: "Escalation Breakdown"
+          description: "Alert fired but routed to wrong team or fell through process gap"
+        "6d":
+          name: "Canary Gap"
+          description: "Change deployed without shadow-scoring or canary evaluation step"
+
+  failure_budget_risk_classes:
+    FC_A:
+      name: "Decision-Critical"
+      description: "Failures directly affect high-stakes decisions (legal, medical, financial, regulatory)"
+      max_failure_rate_per_1000: 1.0
+      examples:
+        - "Hallucinated legal citations used in court"
+        - "Incorrect clinical dosage recommendations"
+        - "Financial figures used for trading decisions"
+        - "GDPR erasure non-compliance"
+
+    FC_B:
+      name: "Customer-Facing"
+      description: "Failures visible to end-users that degrade experience or create legal liability"
+      max_failure_rate_per_1000: 5.0
+      examples:
+        - "Chatbot provides incorrect refund policy"
+        - "Prompt injection alters chatbot persona"
+        - "Latency SLO breach affecting user experience"
+        - "PII surfaced to wrong user"
+
+    FC_C:
+      name: "Internal Productivity"
+      description: "Failures affecting internal users or developer experience without direct customer impact"
+      max_failure_rate_per_1000: 20.0
+      examples:
+        - "Model drift changes internal summarisation quality"
+        - "Benchmark scores inflated by eval contamination"
+        - "API breaking change breaks internal tooling"
+        - "Monitoring gap in internal analytics pipeline"
+
+    FC_D:
+      name: "Experimental"
+      description: "Failures in research or experimental features with no production users"
+      max_failure_rate_per_1000: 100.0
+      examples:
+        - "Research prototype hallucinates in non-deployed system"
+        - "Experimental eval metric shows incorrect results"
+        - "Dev environment model behaves unexpectedly"
