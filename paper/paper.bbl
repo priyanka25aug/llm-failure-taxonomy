@@ -1,0 +1,161 @@
+\begin{thebibliography}{23}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{AIAAIC}(2023)]{aiaaic2023}
+{AIAAIC}.
+\newblock {AI}, algorithmic, and automation incidents and controversies
+  ({AIAAIC}).
+\newblock \url{https://www.aiaaic.org/}, 2023.
+
+\bibitem[Amershi et~al.(2019)Amershi, Begel, Bird, DeLine, Gall, Kamar,
+  Nagappan, Nushi, and Zimmermann]{amershi2019se4ml}
+S.~Amershi, A.~Begel, C.~Bird, R.~DeLine, H.~Gall, E.~Kamar, N.~Nagappan,
+  B.~Nushi, and T.~Zimmermann.
+\newblock Software engineering for machine learning: A case study.
+\newblock In \emph{Proceedings of the 41st International Conference on Software
+  Engineering: Software Engineering in Practice}, pages 291--300. IEEE Press,
+  2019.
+
+\bibitem[Bai et~al.(2022)Bai, Jones, Ndousse, Askell, Chen, DasSarma, Drain,
+  Fort, Ganguli, Henighan, et~al.]{bai2022constitutional}
+Y.~Bai, A.~Jones, K.~Ndousse, A.~Askell, A.~Chen, N.~DasSarma, D.~Drain,
+  S.~Fort, D.~Ganguli, T.~Henighan, et~al.
+\newblock Constitutional {AI}: Harmlessness from {AI} feedback.
+\newblock \emph{arXiv preprint arXiv:2212.08073}, 2022.
+
+\bibitem[Bowman and Dahl(2021)]{bowman2021nlu}
+S.~R. Bowman and G.~E. Dahl.
+\newblock What will it take to fix benchmarking in natural language
+  understanding?
+\newblock In \emph{Proceedings of NAACL-HLT}, pages 1843--1855, 2021.
+
+\bibitem[{British Columbia Civil Resolution
+  Tribunal}(2024)]{aircanada2024chatbot}
+{British Columbia Civil Resolution Tribunal}.
+\newblock Air canada chatbot liable for misinformation on bereavement fares.
+\newblock Tribunal Decision No.\ SC-2023-005226, 2024.
+
+\bibitem[{European Parliament and Council}(2022)]{dora2022}
+{European Parliament and Council}.
+\newblock Regulation ({EU}) 2022/2554 on digital operational resilience for the
+  financial sector ({DORA}).
+\newblock Official Journal of the European Union, 2022.
+
+\bibitem[{European Parliament and Council}(2024)]{euaiact2024}
+{European Parliament and Council}.
+\newblock Regulation ({EU}) 2024/1689 of the european parliament and of the
+  council laying down harmonised rules on artificial intelligence ({Artificial
+  Intelligence Act}).
+\newblock Official Journal of the European Union, 2024.
+
+\bibitem[{Financial Conduct Authority}(2024)]{fcaconsumerduty2024}
+{Financial Conduct Authority}.
+\newblock Artificial intelligence in financial services: Review of firms'
+  approaches to consumer duty compliance.
+\newblock FCA Thematic Review TR24/1, 2024.
+
+\bibitem[Greshake et~al.(2023)Greshake, Abdelnabi, Mishra, Endres, Holz, and
+  Fritz]{greshake2023indirect}
+K.~Greshake, S.~Abdelnabi, S.~Mishra, C.~Endres, T.~Holz, and M.~Fritz.
+\newblock Not what you've signed up for: Compromising real-world
+  {LLM}-integrated applications with indirect prompt injection.
+\newblock \emph{arXiv preprint arXiv:2302.12173}, 2023.
+
+\bibitem[Huang et~al.(2023)Huang, Yu, Ma, Zhong, Feng, Wang, Chen, Peng, Feng,
+  Qin, and Liu]{huang2023survey}
+L.~Huang, W.~Yu, W.~Ma, W.~Zhong, Z.~Feng, H.~Wang, Q.~Chen, W.~Peng, X.~Feng,
+  B.~Qin, and T.~Liu.
+\newblock A survey on hallucination in large language models: Principles,
+  taxonomy, challenges, and open questions.
+\newblock \emph{arXiv preprint arXiv:2311.05232}, 2023.
+
+\bibitem[Ji et~al.(2023)Ji, Lee, Frieske, Yu, Su, Xu, Ishii, Bang, Madotto, and
+  Fung]{ji2023hallucination}
+Z.~Ji, N.~Lee, R.~Frieske, T.~Yu, D.~Su, Y.~Xu, E.~Ishii, Y.~J. Bang,
+  A.~Madotto, and P.~Fung.
+\newblock Survey of hallucination in natural language generation.
+\newblock \emph{ACM Computing Surveys}, 55\penalty0 (12):\penalty0 1--38, 2023.
+
+\bibitem[Kwon et~al.(2023)Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez, Zhang,
+  and Stoica]{kwon2023vllm}
+W.~Kwon, Z.~Li, S.~Zhuang, Y.~Sheng, L.~Zheng, C.~H. Yu, J.~E. Gonzalez,
+  H.~Zhang, and I.~Stoica.
+\newblock Efficient memory management for large language model serving with
+  {PagedAttention}, 2023.
+
+\bibitem[Liang et~al.(2022)Liang, Bommasani, Lee, Tsipras, Soylu, Yasunaga,
+  Zhang, Narayanan, Wu, Kumar, et~al.]{liang2022helm}
+P.~Liang, R.~Bommasani, T.~Lee, D.~Tsipras, D.~Soylu, M.~Yasunaga, Y.~Zhang,
+  D.~Narayanan, Y.~Wu, A.~Kumar, et~al.
+\newblock Holistic evaluation of language models.
+\newblock \emph{arXiv preprint arXiv:2211.09110}, 2022.
+
+\bibitem[McGregor(2021)]{mcgregor2021aiid}
+S.~McGregor.
+\newblock Preventing repeated real world {AI} failures by cataloging incidents:
+  The {AI} incident database.
+\newblock In \emph{Proceedings of the AAAI Workshop on Investigating and
+  Preventing AI Safety Concerns}, 2021.
+
+\bibitem[Paleyes et~al.(2022)Paleyes, Urma, and
+  Lawrence]{paleyes2022challenges}
+A.~Paleyes, R.-G. Urma, and N.~D. Lawrence.
+\newblock Challenges in deploying machine learning: A survey of case studies.
+\newblock \emph{ACM Computing Surveys}, 55\penalty0 (6):\penalty0 1--29, 2022.
+
+\bibitem[Perez and Ribeiro(2022)]{perez2022injection}
+F.~Perez and I.~Ribeiro.
+\newblock Ignore previous prompt: Attack techniques for language models.
+\newblock In \emph{Proceedings of the Workshop on Trustworthy NLP (TrustNLP)},
+  2022.
+
+\bibitem[{Post Office Horizon IT Inquiry}(2024)]{ukposthorizon2024}
+{Post Office Horizon IT Inquiry}.
+\newblock Post office {H}orizon {IT} inquiry: Interim report.
+\newblock \url{https://www.postofficehorizoninquiry.org.uk/}, 2024.
+
+\bibitem[Ribeiro et~al.(2020)Ribeiro, Wu, Guestrin, and
+  Singh]{ribeiro2020checklist}
+M.~T. Ribeiro, T.~Wu, C.~Guestrin, and S.~Singh.
+\newblock {CheckList}: Beyond accuracy: Behavioral testing of {NLP} models with
+  {CheckList}.
+\newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
+  for Computational Linguistics}, pages 4902--4912, 2020.
+
+\bibitem[Sculley et~al.(2015)Sculley, Holt, Golovin, Davydov, Phillips, Ebner,
+  Chaudhary, Young, Crespo, and Dennison]{sculley2015debt}
+D.~Sculley, G.~Holt, D.~Golovin, E.~Davydov, T.~Phillips, D.~Ebner,
+  V.~Chaudhary, M.~Young, J.-F. Crespo, and D.~Dennison.
+\newblock Hidden technical debt in machine learning systems.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~28, 2015.
+
+\bibitem[Shankar et~al.(2020)Shankar, Halpern, Breck, Atwood, Wilson, and
+  Sculley]{shankar2020evaluating}
+S.~Shankar, Y.~Halpern, E.~Breck, J.~Atwood, J.~Wilson, and D.~Sculley.
+\newblock Evaluating machine learning systems with missing, noisy, and biased
+  data.
+\newblock \emph{arXiv preprint arXiv:2006.05051}, 2020.
+
+\bibitem[{United States District Court, S.D.N.Y.}(2023)]{mata2023avianca}
+{United States District Court, S.D.N.Y.}
+\newblock {Mata v. Avianca, Inc.}, no.\ 22-cv-1461 (pkc).
+\newblock Sanctions Opinion, June 2023, 2023.
+
+\bibitem[Wei et~al.(2023)Wei, Haghtalab, and Steinhardt]{wei2023jailbroken}
+A.~Wei, N.~Haghtalab, and J.~Steinhardt.
+\newblock Jailbroken: How does {LLM} safety training fail?
+\newblock \emph{arXiv preprint arXiv:2307.02483}, 2023.
+
+\bibitem[Weidinger et~al.(2021)Weidinger, Mellor, Rauh, Griffin, Uesato, Huang,
+  Cheng, Glaese, Bole, Kivlichan, et~al.]{weidinger2021taxonomy}
+L.~Weidinger, J.~Mellor, M.~Rauh, C.~Griffin, J.~Uesato, P.-S. Huang, M.~Cheng,
+  M.~Glaese, B.~Bole, I.~Kivlichan, et~al.
+\newblock Ethical and social risks of harm from language models.
+\newblock \emph{arXiv preprint arXiv:2112.04359}, 2021.
+
+\end{thebibliography}

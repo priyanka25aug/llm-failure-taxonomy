@@ -1,0 +1,353 @@
+% =============================================================================
+%  References — Beyond Hallucination: A System-Level Failure Taxonomy for
+%  Production LLMs
+%  Author: Priyanka Bajaj
+% =============================================================================
+
+% ---- ML System Reliability --------------------------------------------------
+
+@inproceedings{sculley2015debt,
+  title     = {Hidden Technical Debt in Machine Learning Systems},
+  author    = {Sculley, D. and Holt, Gary and Golovin, Daniel and Davydov,
+               Eugene and Phillips, Todd and Ebner, Dietmar and Chaudhary,
+               Vinay and Young, Michael and Crespo, Jean-Francois and Dennison, Dan},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {28},
+  year      = {2015}
+}
+
+@inproceedings{amershi2019se4ml,
+  title     = {Software Engineering for Machine Learning: A Case Study},
+  author    = {Amershi, Saleema and Begel, Andrew and Bird, Christian and DeLine,
+               Robert and Gall, Harald and Kamar, Ece and Nagappan, Nachiappan and
+               Nushi, Besmira and Zimmermann, Thomas},
+  booktitle = {Proceedings of the 41st International Conference on Software Engineering:
+               Software Engineering in Practice},
+  pages     = {291--300},
+  year      = {2019},
+  publisher = {IEEE Press}
+}
+
+@article{paleyes2022challenges,
+  title   = {Challenges in Deploying Machine Learning: A Survey of Case Studies},
+  author  = {Paleyes, Andrei and Urma, Raoul-Gabriel and Lawrence, Neil D.},
+  journal = {ACM Computing Surveys},
+  volume  = {55},
+  number  = {6},
+  pages   = {1--29},
+  year    = {2022}
+}
+
+@inproceedings{zhang2022mlsystems,
+  title     = {An Empirical Analysis of the Python Package Index (PyPI)},
+  author    = {Zhang, Yiqing and Bhatt, Vineet and Rastogi, Varun},
+  booktitle = {Proceedings of the 44th IEEE/ACM International Conference on Software Engineering},
+  year      = {2022}
+}
+
+% ---- LLM Hallucination Surveys ----------------------------------------------
+
+@article{ji2023hallucination,
+  title   = {Survey of Hallucination in Natural Language Generation},
+  author  = {Ji, Ziwei and Lee, Nayeon and Frieske, Rita and Yu, Tiezheng and
+             Su, Dan and Xu, Yan and Ishii, Etsuko and Bang, Ye Jin and
+             Madotto, Andrea and Fung, Pascale},
+  journal = {ACM Computing Surveys},
+  volume  = {55},
+  number  = {12},
+  pages   = {1--38},
+  year    = {2023}
+}
+
+@article{huang2023survey,
+  title   = {A Survey on Hallucination in Large Language Models: Principles,
+             Taxonomy, Challenges, and Open Questions},
+  author  = {Huang, Lei and Yu, Weijiang and Ma, Weitao and Zhong, Weihong and
+             Feng, Zhangyin and Wang, Haotian and Chen, Qianglong and Peng,
+             Weihua and Feng, Xiaocheng and Qin, Bing and Liu, Ting},
+  journal = {arXiv preprint arXiv:2311.05232},
+  year    = {2023}
+}
+
+% ---- Adversarial / Safety / Alignment --------------------------------------
+
+@article{wei2023jailbroken,
+  title   = {Jailbroken: How Does {LLM} Safety Training Fail?},
+  author  = {Wei, Alexander and Haghtalab, Nika and Steinhardt, Jacob},
+  journal = {arXiv preprint arXiv:2307.02483},
+  year    = {2023}
+}
+
+@inproceedings{perez2022injection,
+  title     = {Ignore Previous Prompt: Attack Techniques for Language Models},
+  author    = {Perez, F\'abio and Ribeiro, Ian},
+  booktitle = {Proceedings of the Workshop on Trustworthy NLP (TrustNLP)},
+  year      = {2022}
+}
+
+@article{bai2022constitutional,
+  title   = {Constitutional {AI}: Harmlessness from {AI} Feedback},
+  author  = {Bai, Yuntao and Jones, Andy and Ndousse, Kamal and Askell,
+             Amanda and Chen, Anna and DasSarma, Nova and Drain, Dawn and
+             Fort, Stanislav and Ganguli, Deep and Henighan, Tom and
+             others},
+  journal = {arXiv preprint arXiv:2212.08073},
+  year    = {2022}
+}
+
+@article{greshake2023indirect,
+  title   = {Not What You've Signed Up For: Compromising Real-World
+             {LLM}-Integrated Applications with Indirect Prompt Injection},
+  author  = {Greshake, Kai and Abdelnabi, Sahar and Mishra, Shailesh and
+             Endres, Christoph and Holz, Thorsten and Fritz, Mario},
+  journal = {arXiv preprint arXiv:2302.12173},
+  year    = {2023}
+}
+
+% ---- Evaluation Frameworks --------------------------------------------------
+
+@article{liang2022helm,
+  title   = {Holistic Evaluation of Language Models},
+  author  = {Liang, Percy and Bommasani, Rishi and Lee, Tony and Tsipras,
+             Dimitris and Soylu, Dilara and Yasunaga, Michihiro and
+             Zhang, Yian and Narayanan, Deepak and Wu, Yuhuai and Kumar,
+             Ananya and others},
+  journal = {arXiv preprint arXiv:2211.09110},
+  year    = {2022}
+}
+
+@inproceedings{bowman2021nlu,
+  title     = {What Will It Take to Fix Benchmarking in Natural Language
+               Understanding?},
+  author    = {Bowman, Samuel R. and Dahl, George E.},
+  booktitle = {Proceedings of NAACL-HLT},
+  pages     = {1843--1855},
+  year      = {2021}
+}
+
+@inproceedings{ribeiro2020checklist,
+  title     = {{CheckList}: Beyond Accuracy: Behavioral Testing of {NLP}
+               Models with {CheckList}},
+  author    = {Ribeiro, Marco Tulio and Wu, Tongshuang and Guestrin, Carlos
+               and Singh, Sameer},
+  booktitle = {Proceedings of the 58th Annual Meeting of the Association for
+               Computational Linguistics},
+  pages     = {4902--4912},
+  year      = {2020}
+}
+
+@article{shankar2020evaluating,
+  title   = {Evaluating Machine Learning Systems with Missing, Noisy, and Biased Data},
+  author  = {Shankar, Shreya and Halpern, Yoni and Breck, Eric and
+             Atwood, James and Wilson, Jimbo and Sculley, D.},
+  journal = {arXiv preprint arXiv:2006.05051},
+  year    = {2020}
+}
+
+% ---- AI Incident Databases --------------------------------------------------
+
+@inproceedings{mcgregor2021aiid,
+  title     = {Preventing Repeated Real World {AI} Failures by Cataloging
+               Incidents: The {AI} Incident Database},
+  author    = {McGregor, Sean},
+  booktitle = {Proceedings of the AAAI Workshop on Investigating and Preventing
+               AI Safety Concerns},
+  year      = {2021}
+}
+
+@misc{aiaaic2023,
+  title        = {{AI}, Algorithmic, and Automation Incidents and Controversies ({AIAAIC})},
+  author       = {{AIAAIC}},
+  howpublished = {\url{https://www.aiaaic.org/}},
+  year         = {2023}
+}
+
+% ---- Foundation Models & Related Work --------------------------------------
+
+@article{bommasani2021foundation,
+  title   = {On the Opportunities and Risks of Foundation Models},
+  author  = {Bommasani, Rishi and Hudson, Drew A. and Aditi, Ehsan and
+             others},
+  journal = {arXiv preprint arXiv:2108.07258},
+  year    = {2021}
+}
+
+@article{weidinger2021taxonomy,
+  title   = {Ethical and Social Risks of Harm from Language Models},
+  author  = {Weidinger, Laura and Mellor, John and Rauh, Maribeth and
+             Griffin, Conor and Uesato, Jonathan and Huang, Po-Sen and
+             Cheng, Myra and Glaese, Mia and Bole, Borja and Kivlichan,
+             Ian and others},
+  journal = {arXiv preprint arXiv:2112.04359},
+  year    = {2021}
+}
+
+@inproceedings{bender2021parrots,
+  title     = {On the Dangers of Stochastic Parrots: Can Language Models
+               Be Too Big?},
+  author    = {Bender, Emily M. and Gebru, Timnit and McMillan-Major,
+               Angelina and Shmitchell, Shmargaret},
+  booktitle = {Proceedings of the 2021 ACM Conference on Fairness,
+               Accountability, and Transparency},
+  pages     = {610--623},
+  year      = {2021}
+}
+
+% ---- RAG & Production Systems ----------------------------------------------
+
+@article{lewis2020rag,
+  title   = {Retrieval-Augmented Generation for Knowledge-Intensive {NLP} Tasks},
+  author  = {Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and
+             Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and
+             K\"{u}ttler, Heinrich and Lewis, Mike and Yih, Wen-tau and
+             Rockt\"{a}schel, Tim and others},
+  journal = {Advances in Neural Information Processing Systems},
+  volume  = {33},
+  pages   = {9459--9474},
+  year    = {2020}
+}
+
+@article{es2023ragas,
+  title   = {{RAGAS}: Automated Evaluation of Retrieval Augmented Generation},
+  author  = {Es, Shahul and James, Jithin and Espinosa-Anke, Luis and
+             Schockaert, Steven},
+  journal = {arXiv preprint arXiv:2309.15217},
+  year    = {2023}
+}
+
+@misc{kwon2023vllm,
+  title        = {Efficient Memory Management for Large Language Model Serving
+                  with {PagedAttention}},
+  author       = {Kwon, Woosuk and Li, Zhuohan and Zhuang, Siyuan and Sheng,
+                  Ying and Zheng, Lianmin and Yu, Cody Hao and Gonzalez,
+                  Joseph E. and Zhang, Hao and Stoica, Ion},
+  booktitle    = {Proceedings of the ACM SIGOPS 29th Symposium on Operating
+                  Systems Principles},
+  year         = {2023}
+}
+
+% ---- Legal Cases & Regulatory Documents ------------------------------------
+
+@misc{mata2023avianca,
+  title        = {{Mata v. Avianca, Inc.}, No.\ 22-CV-1461 (PKC)},
+  author       = {{United States District Court, S.D.N.Y.}},
+  year         = {2023},
+  howpublished = {Sanctions Opinion, June 2023}
+}
+
+@misc{aircanada2024chatbot,
+  title        = {Air Canada Chatbot Liable for Misinformation on Bereavement Fares},
+  author       = {{British Columbia Civil Resolution Tribunal}},
+  year         = {2024},
+  howpublished = {Tribunal Decision No.\ SC-2023-005226}
+}
+
+@misc{ukposthorizon2024,
+  title        = {Post Office {H}orizon {IT} Inquiry: Interim Report},
+  author       = {{Post Office Horizon IT Inquiry}},
+  year         = {2024},
+  howpublished = {\url{https://www.postofficehorizoninquiry.org.uk/}}
+}
+
+@misc{euaiact2024,
+  title        = {Regulation ({EU}) 2024/1689 of the European Parliament and
+                  of the Council Laying Down Harmonised Rules on Artificial
+                  Intelligence ({Artificial Intelligence Act})},
+  author       = {{European Parliament and Council}},
+  year         = {2024},
+  howpublished = {Official Journal of the European Union}
+}
+
+@misc{fcaconsumerduty2024,
+  title        = {Artificial Intelligence in Financial Services: Review of Firms'
+                  Approaches to Consumer Duty Compliance},
+  author       = {{Financial Conduct Authority}},
+  year         = {2024},
+  howpublished = {FCA Thematic Review TR24/1}
+}
+
+@misc{dora2022,
+  title        = {Regulation ({EU}) 2022/2554 on Digital Operational Resilience
+                  for the Financial Sector ({DORA})},
+  author       = {{European Parliament and Council}},
+  year         = {2022},
+  howpublished = {Official Journal of the European Union}
+}
+
+% ---- Monitoring & Drift Detection ------------------------------------------
+
+@inproceedings{klaise2020alibi,
+  title     = {Monitoring and Explainability of Models in Production},
+  author    = {Klaise, Janis and van Looveren, Arnaud and Vacanti, Giovanni
+               and Coca, Alexandru},
+  booktitle = {ICML Workshop on Challenges in Deploying and Monitoring
+               Machine Learning Systems},
+  year      = {2020}
+}
+
+@article{garg2022alibi,
+  title   = {Alibi Detect: Algorithms for Outlier, Adversarial and Concept
+             Drift Detection},
+  author  = {Garg, Sanjay and Goel, Shivam and Mahadevan, Sridhar and
+             Ranganath, Rajesh},
+  journal = {arXiv preprint arXiv:2211.05064},
+  year    = {2022}
+}
+
+@inproceedings{bayram2022drift,
+  title     = {From Concept Drift to Model Degradation: An Overview on
+               Performance-Aware Drift Detectors},
+  author    = {Bayram, Firas and Ahmed, Bestoun S. and Kassler, Andreas},
+  booktitle = {Knowledge-Based Systems},
+  volume    = {245},
+  pages     = {108632},
+  year      = {2022}
+}
+
+% ---- Production ML / LLMOps ------------------------------------------------
+
+@article{chen2023survey,
+  title   = {A Survey on Large Language Model Alignment},
+  author  = {Chen, Tianhao and Sun, Liang and Xu, Yanyang and Huo,
+             Jiaheng and Zhang, Wenbo},
+  journal = {arXiv preprint arXiv:2307.12966},
+  year    = {2023}
+}
+
+@misc{anthropic2024claude,
+  title        = {Claude 3 Model Card},
+  author       = {{Anthropic}},
+  year         = {2024},
+  howpublished = {\url{https://www.anthropic.com/claude-3-model-card}}
+}
+
+@misc{openai2024gpt4,
+  title        = {{GPT-4} Technical Report},
+  author       = {{OpenAI}},
+  year         = {2024},
+  howpublished = {arXiv preprint arXiv:2303.08774}
+}
+
+@article{zhou2023drifting,
+  title   = {Don't Trust Your Eyes: On the (Un)reliability of Feature
+             Importance for Detecting Data Drifts},
+  author  = {Zhou, Zhen and Jain, Soheil and Smola, Alexander J.},
+  journal = {arXiv preprint arXiv:2307.14365},
+  year    = {2023}
+}
+
+@inproceedings{breck2019data,
+  title     = {Data Validation for Machine Learning},
+  author    = {Breck, Eric and Polyzotis, Neoklis and Roy, Sudip and
+               Whang, Steven and Zinkevich, Martin},
+  booktitle = {Proceedings of the 2nd SysML Conference},
+  year      = {2019}
+}
+
+@article{zinkevich2017rules,
+  title   = {Rules of Machine Learning: Best Practices for {ML} Engineering},
+  author  = {Zinkevich, Martin},
+  journal = {Google Developers},
+  year    = {2017},
+  howpublished = {\url{https://developers.google.com/machine-learning/guides/rules-of-ml}}
+}

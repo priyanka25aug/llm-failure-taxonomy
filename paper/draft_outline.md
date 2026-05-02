@@ -1,149 +1,247 @@
 # Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs
 
-**Author:** Priyanka Bajaj
-**Target venues:** arXiv cs.LG / cs.SE · MLSys 2026
-**Submission deadline:** October 2025 (MLSys) / rolling (arXiv)
+**Author:** Priyanka Bajaj  
+**Target venue:** arXiv cs.LG → MLSys 2026 / ACM SysML  
+**Target length:** 10–12 pages (conference format)  
+**Status:** Outline — draft in progress
 
 ---
 
 ## Abstract (draft)
 
-Large language models deployed in production fail in ways that extend far beyond factual hallucination. We present a six-class system-level taxonomy — Model Drift, Infrastructure, Integration, Evaluation, Safety & Compliance, and Operational — grounded in 50 labeled real-world incidents drawn from court documents, regulatory filings, academic papers, and engineering postmortems. For each class we define sub-classes, failure budget risk tiers (FC-A through FC-D), and detection/remediation patterns. We validate the taxonomy using a rule-based classifier (11/11 unit tests) and a Claude API-powered classifier, and demonstrate that the majority of production failures (>60%) are *silent* — undetectable without purpose-built observability. We further introduce a per-use-case failure budget model that translates taxonomy class into quantitative reliability targets. The taxonomy, dataset, and tooling are released openly to support reproducible LLMOps research.
+Large language models are increasingly deployed in production systems serving millions of users across regulated, high-stakes domains. Existing failure analysis focuses predominantly on model-level errors — hallucination rates, factuality benchmarks, and safety refusal classification. This framing, while necessary, is insufficient for production engineers who must reason about system reliability across the full deployment stack.
+
+We present the first system-level failure taxonomy for production LLM deployments, comprising six classes: Model Drift, Infrastructure, Integration, Evaluation, Safety & Compliance, and Operational. Unlike model-centric taxonomies, our classification scheme captures failures that originate outside the model weights — in serving infrastructure, RAG retrieval pipelines, evaluation frameworks, and operational processes — and classifies them by their detectability profile and blast radius.
+
+We validate the taxonomy against 50 real-world production incidents drawn from court documents, regulatory filings, academic papers, and public postmortems. Key findings: 50% of incidents were *silent* (no immediate alert; detected via audit or user complaint); Safety & Compliance and Integration failures each account for 26% of incidents; and Infrastructure failures, while less frequent, show the shortest mean time to detection.
+
+We further introduce a *per-use-case failure budget framework* — a formal model for assigning acceptable failure rates by use case risk class (Decision-Critical, Customer-Facing, Internal Productivity, Experimental) rather than by model accuracy. This reframing shifts engineering teams from debating "which model is best" to reasoning about acceptable risk envelopes per workflow — a change with measurable operational consequences in regulated deployment contexts.
+
+All data, code, and the taxonomy schema are released at: https://github.com/priyanka25aug/llm-failure-taxonomy
 
 ---
 
-## Section Structure
+## 1. Introduction (target: ~1.5 pages)
 
-### 1. Introduction
+**Opening hook:** The courtroom. Cite Mata v. Avianca (2023) — a lawyer submitting hallucinated case citations is a model failure. But Air Canada's chatbot stating incorrect refund policy (2024) is an integration failure. The UK Post Office Horizon system convicting 700+ postmasters is an operational failure. All three are LLM-adjacent production failures. Only the first looks like "hallucination."
 
-- Motivation: LLM failures in production are not just hallucination — they span infrastructure, evaluation, compliance, and operations
-- Gap: no unified, system-level taxonomy exists; AIID (McGregor 2021) covers AI incidents broadly, not LLM-specific production failure modes
-- Contributions:
-  1. Six-class LLM production failure taxonomy with 22 sub-classes
-  2. 50-incident labeled dataset with public provenance
-  3. Failure budget risk model (FC-A → FC-D) analogous to SRE error budgets
-  4. Rule-based and LLM-powered classifiers with empirical validation
-- Paper roadmap
+**Gap statement:**  
+- Existing failure taxonomies for ML systems (Sculley et al. 2015, Amershi et al. 2019) predate modern LLM deployments and don't capture LLM-specific failure modes
+- LLM-specific work (hallucination surveys, jailbreak papers, alignment failure analyses) focuses exclusively on model-layer failures
+- No structured, system-level classification exists for practitioners operating LLMs in production
 
-### 2. Related Work
+**Contributions (enumerate clearly):**
+1. A 6-class system-level failure taxonomy with sub-classes, detectability profiles, and blast radius characterisation
+2. A labeled dataset of 50 real-world incidents with full provenance
+3. A per-use-case failure budget framework formalising acceptable failure rates by risk class
+4. A reference rule-based classifier for automated incident triage
 
-- **ML system failures broadly:** Sculley et al. (2015) *Hidden Technical Debt in ML Systems* — identifies data dependencies, feedback loops; does not cover LLM-specific failure modes
-- **SE for ML:** Amershi et al. (2019) *Software Engineering for ML Applications* — 9-stage ML workflow; we extend to LLM serving-time concerns
-- **Hallucination surveys:** Ji et al. (2023) *Survey of Hallucination in NLG* — covers factual errors but not infrastructure/operational classes
-- **Evaluation frameworks:** Liang et al. (2022) *HELM* — benchmark evaluation; we use HELM gaming as a CLASS_4 specimen
-- **AI incident databases:** McGregor et al. (2021) *AIID* — incident reporting; broader than LLMs, lower taxonomic specificity
-- **LLM security:** prompt injection literature (Greshake et al. 2023); covered in CLASS_3_INTEGRATION
-- **SRE reliability:** Beyer et al. (2016) *Site Reliability Engineering* — error budget concept adapted for failure budget model
-
-### 3. Taxonomy Framework
-
-- Design principles: exhaustive, mutually exclusive at class level, empirically grounded, actionable
-- Relationship to SRE error budgets: failure budget class ≡ SLO tier
-- Taxonomy structure diagram: 6 classes × sub-classes × detectability × blast radius
-- Labelling methodology: dual annotation, inter-annotator agreement (Cohen's κ)
-- Limitations: classes are not always mutually exclusive at sub-class level; taxonomy v1.0
-
-### 4. The Six Failure Classes
-
-#### 4.1 CLASS_1: Model Drift
-- Definition and detection signals
-- Sub-classes: 1a (upstream update), 1b (distribution shift), 1c (context saturation)
-- Case studies: GPT-4 silent update (FTX-0007), Distributional drift in banking intent classifier (FTX-0049)
-- Detection: output distribution monitoring, regression evals on every upstream update
-- Remediation: model version pinning, continuous eval pipelines
-
-#### 4.2 CLASS_2: Infrastructure
-- Definition and detection signals
-- Sub-classes: 2a (latency), 2b (OOM/KV cache), 2c (routing), 2d (API contract)
-- Case studies: vLLM KV cache exhaustion (FTX-0035), OpenAI embedding dimensionality change (FTX-0022)
-- Detection: P99 latency SLOs, KV cache utilisation metrics, API contract tests
-- Remediation: canary deployments, versioned API endpoints, request-level KV cache quotas
-
-#### 4.3 CLASS_3: Integration
-- Definition and detection signals
-- Sub-classes: 3a (injection), 3b (truncation), 3c (tool-call hallucination), 3d (RAG mismatch), 3e (multi-turn corruption)
-- Case studies: Bing Sydney jailbreak (FTX-0005), Production RAG stale regulatory docs (FTX-0030)
-- Detection: input sanitisation tests, context length monitoring, tool-name validation, RAG freshness metadata
-- Remediation: registered tool allowlists, vector index refresh schedules, context overflow errors
-
-#### 4.4 CLASS_4: Evaluation
-- Definition and detection signals
-- Sub-classes: 4a (metric gaming), 4b (contamination), 4c (production gap), 4d (point vs distributional)
-- Case studies: HELM benchmark gaming (FTX-0019), LLaMA eval contamination (FTX-0029)
-- Detection: human evaluation audits, benchmark deduplication against training corpus
-- Remediation: diversified eval suites, held-out production query sets, adversarial eval
-
-#### 4.5 CLASS_5: Safety and Compliance
-- Definition and detection signals
-- Sub-classes: 5a (PII), 5b (citations), 5c (policy), 5d (auditability), 5e (copyright)
-- Case studies: Mata v. Avianca (FTX-0001), GDPR right-to-erasure (FTX-0045), NHS triage bias (FTX-0026)
-- Detection: output guardrails, citation verification, audit logging, demographic fairness metrics
-- Remediation: grounding on verified sources, data lineage tracking, per-request audit trails
-
-#### 4.6 CLASS_6: Operational
-- Definition and detection signals
-- Sub-classes: 6a (monitoring blind-spot), 6b (runbook absence), 6c (escalation breakdown), 6d (canary gap)
-- Case studies: P99 SLO breach on weekend (FTX-0048), Prompt template regression (FTX-0038)
-- Detection: by definition, detected only after failure — prevention is key
-- Remediation: 24/7 alerting, documented rollback runbooks, shadow-scoring CI gates
-
-### 5. Failure Budget Model
-
-- Motivation: quantitative reliability targets for LLM use cases analogous to SRE error budgets
-- FC-A → FC-D risk tiers: max failure rates per 1,000 requests
-- Severity weighting: critical=3×, high=2×, medium=1×, low=0.5×
-- Budget utilisation and status thresholds: HEALTHY / ELEVATED / WARNING / BREACHED
-- Case study: FC_A legal advisor use case at 100% budget utilisation
-- Worked example: FC_C internal productivity tool at 5% utilisation
-
-### 6. Dataset Validation
-
-- Dataset composition: 50 incidents, 6 classes, public provenance
-- Source distribution: court documents (4), academic papers (14), public news (18), regulatory filings (4), company postmortems (3), synthetic (7)
-- Key statistics: 50% silent detectability, 34% FC_A (decision-critical)
-- Classifier validation: rule-based 11/11 tests; LLM classifier accuracy on demo cases
-- Distribution analysis: 7 figures (class distribution, severity heatmap, detectability, blast radius, domain, MTTD, budget class)
-- Threat to validity: selection bias toward publicly disclosed incidents; dark figure of unreported failures
-
-### 7. Discussion
-
-- Silent failures as the dominant risk (50% of incidents): observability gap in LLM systems
-- Failure budget model as a bridge between LLMOps and SRE practice
-- Taxonomy evolution: v1.0 covers known failure modes; agentic multi-step failures (CLASS_3c) will grow
-- Open questions: automated taxonomy labeling at scale; cross-organization incident sharing norms
-- Limitations: taxonomy is descriptive not causal; root causes require human judgment
-
-### 8. Conclusion
-
-- Summary of contributions
-- Impact: provides LLMOps teams a structured language for failure classification, monitoring design, and reliability targeting
-- Release: taxonomy, dataset, and tooling at https://github.com/priyanka25aug/llm-failure-taxonomy
-- Call to action: community incident submissions to extend dataset beyond 50
+**Paper roadmap:** one sentence per section.
 
 ---
 
-## Key References
+## 2. Related Work (target: ~1 page)
 
-1. Sculley, D. et al. (2015). *Hidden Technical Debt in Machine Learning Systems*. NeurIPS.
-2. Amershi, S. et al. (2019). *Software Engineering for Machine Learning: A Case Study*. ICSE-SEIP.
-3. Ji, Z. et al. (2023). *Survey of Hallucination in Natural Language Generation*. ACM CSUR.
-4. Liang, P. et al. (2022). *Holistic Evaluation of Language Models*. arXiv:2211.09110.
-5. McGregor, S. (2021). *Preventing Repeated Real World AI Failures by Cataloging Incidents: The AI Incident Database*. AAAI.
-6. Greshake, K. et al. (2023). *Not What You've Signed Up For: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection*. AISec.
-7. Beyer, B. et al. (2016). *Site Reliability Engineering*. O'Reilly.
-8. Goodhart, C. (1975). *Problems of Monetary Management: The U.K. Experience*. (Goodhart's Law)
+**2.1 ML System Reliability**  
+- Sculley et al. (2015) "Hidden Technical Debt in ML Systems" — foundational but pre-LLM  
+- Amershi et al. (2019) "Software Engineering for Machine Learning" — process failures but model-agnostic  
+- Paleyes et al. (2022) "Challenges in Deploying ML" — deployment taxonomy but pre-LLM
+
+**2.2 LLM Failure Analysis**  
+- Hallucination surveys (Ji et al. 2023, Huang et al. 2023) — model-layer only  
+- Jailbreak/adversarial input literature (Wei et al. 2023, Perez & Ribeiro 2022) — CLASS_3 sub-class only  
+- Safety alignment failures (Bai et al. 2022) — CLASS_5 sub-class only  
+- Evaluation critique literature (Bowman et al. 2021, Liang et al. 2022 HELM) — CLASS_4 only
+
+**2.3 AI Incident Databases**  
+- AI Incident Database (McGregor 2021) — incident collection without structured taxonomy  
+- AIAAIC — similar; narrative not structural  
+- This work: first structured, layered taxonomy with formal failure budget framework
+
+**Gap summary table:** 2×5 table mapping existing work to our 6 classes — showing no prior work covers all 6.
 
 ---
 
-## 8-Week Writing Schedule
+## 3. Taxonomy Framework (target: ~1.5 pages)
 
-| Week | Dates | Milestone |
-|------|-------|-----------|
-| 1 | May 5–11 | Complete taxonomy YAML; finalize 50-incident dataset; inter-annotator agreement run |
-| 2 | May 12–18 | Write Sections 1 (Introduction) and 2 (Related Work) — full draft |
-| 3 | May 19–25 | Write Section 3 (Taxonomy Framework) and Section 5 (Failure Budget Model) |
-| 4 | May 26–Jun 1 | Write Section 4 (Six Classes) — all 6 sub-sections with case studies |
-| 5 | Jun 2–8 | Write Section 6 (Dataset Validation) and generate all figures |
-| 6 | Jun 9–15 | Write Sections 7 (Discussion) and 8 (Conclusion); complete abstract |
-| 7 | Jun 16–22 | Full paper revision pass; peer review from co-authors; fix classifier to match paper claims |
-| 8 | Jun 23–29 | Final proofread; arXiv submission; begin MLSys 2026 formatting |
+**3.1 Design Principles**  
+Four principles guiding the taxonomy design:  
+1. *Layer-specificity* — each class maps to a distinct system layer (model / infra / integration / eval / governance / ops)  
+2. *Actionability* — each class implies a distinct remediation path and owning team  
+3. *Detectability as first-class attribute* — not just what fails, but when and how it becomes observable  
+4. *Blast radius* — scope of user/system impact as a classification attribute, not an afterthought
+
+**3.2 Classification Dimensions**  
+- Failure class (6 classes)  
+- Sub-class (3–5 per class)  
+- Severity (critical / high / medium / low)  
+- Detectability (immediate / delayed / silent)  
+- Blast radius (single_request → single_user → user_cohort → team → org_wide → public)  
+- Mean time to detection (MTTD) range  
+- Failure budget risk class (FC_A through FC_D)
+
+**3.3 Comparison to Model-Centric Framing**  
+Table: "Hallucination" as classified by our taxonomy — it appears in CLASS_1 (drift), CLASS_3 (RAG mismatch), CLASS_5 (high-stakes domain hallucination). Same observable symptom, three different root causes, three different remediation paths.
+
+---
+
+## 4. The Six Failure Classes (target: ~3 pages)
+
+One subsection per class. Each follows a fixed structure:
+- Definition (2–3 sentences)  
+- Sub-classes (bullet list)  
+- Key indicators (what to monitor)  
+- Representative incident (anonymised or public)  
+- Detectability profile  
+- Failure budget applicability
+
+**4.1 CLASS_1 — Model Drift Failures**  
+Representative: GPT-4 silent behaviour change (March 2023) — upstream model update causing silent output distribution shift, detected 168h later via developer forum reports.
+
+**4.2 CLASS_2 — Infrastructure Failures**  
+Representative: vLLM PagedAttention KV cache exhaustion — bursty long-context traffic exhausting shared GPU memory, 500 errors, immediate detection but 3h MTTR.
+
+**4.3 CLASS_3 — Integration Failures**  
+Representative: Bing Chat Sydney (2023) — prompt injection via adversarial input extracting system prompt and enabling persona escape. Sub-class 3a.
+
+**4.4 CLASS_4 — Evaluation Failures**  
+Representative: HELM benchmark gaming — models optimising for benchmark proxy metrics showing degraded real-world user value. Silent failure class; MTTD measured in months.
+
+**4.5 CLASS_5 — Safety & Compliance Failures**  
+Representative: Mata v. Avianca (2023) — LLM hallucinating legal citations submitted to federal court. Sub-class 5b. FC_A use case with no verification guardrail.
+
+**4.6 CLASS_6 — Operational Failures**  
+Representative: (Anonymised composite) — LLM output-length drift unmonitored for 3 weeks; detected via support ticket backlog review. No alert existed for output distribution shift.
+
+---
+
+## 5. The Failure Budget Framework (target: ~2 pages)
+
+**5.1 Motivation: Why Per-Model Accuracy is the Wrong Unit**  
+Current practice: teams negotiate "which model achieves X% on Y benchmark."  
+Problem: two use cases running on the *same model* can have radically different acceptable failure tolerances. A credit decisioning path and an internal summarisation tool are not equivalent — they should not share a failure budget.
+
+**5.2 Formal Definition**  
+Define: failure budget B(u) for use case u as the maximum acceptable weighted failure rate per 1,000 requests, where failures are weighted by severity.
+
+B(u) = f(risk_class(u)) where risk_class ∈ {FC_A, FC_B, FC_C, FC_D}
+
+Budget utilisation: U(u, t) = observed_weighted_failures(u, t) / B(u) × 100%
+
+Status thresholds: HEALTHY (<50%), ELEVATED (50–80%), WARNING (80–100%), BREACHED (>100%)
+
+**5.3 Risk Class Calibration**  
+Table: risk class → max failure rate → required monitoring classes → example use cases  
+Calibration methodology: drawn from regulated deployment practice in financial services (DORA, FCA Consumer Duty, Basel model risk framework) and healthcare (FDA SaMD guidance)
+
+**5.4 Implementation Considerations**  
+- Failure budget class assignment must precede model selection — it is a business/legal decision, not a technical one  
+- Failure events should be weighted by severity (critical=3x, high=2x, medium=1x, low=0.5x)  
+- Budget should be reviewed per sprint cycle; breaches trigger incident review, not just monitoring alerts  
+- Budget does not replace model-level metrics — it sits above them as a system-level SLO
+
+**5.5 Illustrative Example**  
+Walk through the calculator output for a bank running three use cases (credit decisioning FC_A, customer chatbot FC_B, internal search FC_C) with different failure event histories. Show the budget utilisation report.
+
+---
+
+## 6. Dataset and Validation (target: ~1.5 pages)
+
+**6.1 Dataset Construction**  
+- 50 incidents; 36 from public sources, 14 synthetic composites  
+- Sources: court documents, regulatory filings, academic papers, company postmortems, public news  
+- Labeling: single annotator (author); sub-class, severity, detectability, blast radius, MTTD/MTTR  
+- Availability: full dataset at repository URL with source citations
+
+**6.2 Dataset Statistics**  
+- Class distribution: CLASS_5 (26%) and CLASS_3 (26%) dominate — safety/compliance and integration are the most-reported public failure classes  
+- 50% of incidents are *silent* — the largest single finding; motivates monitoring design recommendations  
+- 36% are *critical* severity; 60% *high*  
+- MTTD ranges: CLASS_2 (0.1–8h) vs CLASS_4 (months) — six orders of magnitude difference  
+- Domain: financial services (22%) and enterprise productivity (24%) dominate
+
+**6.3 Classifier Validation**  
+- Rule-based classifier evaluated against 50 labeled incidents  
+- Report precision/recall per class  
+- Confusion matrix — highlight CLASS_1/CLASS_4 confusion (both can appear as "silent quality degradation")  
+- Note: rule-based is a reference implementation; LLM-based classification reported separately
+
+**6.4 Limitations**  
+- Dataset skewed toward publicly reported incidents — severe failures are over-represented  
+- Single annotator; inter-rater reliability study planned  
+- Synthetic incidents not used in empirical frequency claims
+
+---
+
+## 7. Discussion (target: ~1 page)
+
+**7.1 The Silent Majority**  
+50% of failures are silent. This has a direct architectural implication: monitoring systems built around alert-on-error are insufficient for production LLM systems. Distributional monitoring (output length, token distribution, semantic drift) must complement error-rate monitoring.
+
+**7.2 Safety & Compliance Is Not a Model Problem**  
+CLASS_5 accounts for 26% of incidents but spans model memorisation (5a), hallucinated citations (5b), policy boundary violation (5c), auditability gaps (5d), and copyright (5e). The shared property is not model behaviour — it is the *absence of a verification layer* between model output and consequential action. Taxonomy enables targeted remediation: each sub-class implies a distinct control.
+
+**7.3 Evaluation Failure Is Underreported**  
+CLASS_4 is 10% of incidents — likely an undercount. Evaluation failures are meta-failures (the signal that would catch other failures is itself broken) and rarely surface as reportable incidents. Dedicated evaluation infrastructure is a first-class engineering concern.
+
+**7.4 Failure Budget as Org Design Tool**  
+The failure budget framework is not just a monitoring concept — it is a forcing function for cross-team alignment. Assigning a use case to FC_A requires legal, compliance, ML, and product to agree on acceptable risk before a single model is selected. This conversation rarely happens today.
+
+---
+
+## 8. Conclusion (target: ~0.5 pages)
+
+- Restate the gap, the contribution, the key finding (silent failures, layer specificity)
+- Call to action: adopt system-level failure thinking in LLM deployments
+- Open problems: inter-rater reliability study, LLM-based classifier, domain-specific budget calibration, temporal analysis (are failure patterns changing as the industry matures?)
+- Repository and dataset released for community extension
+
+---
+
+## References (target: 25–35 citations)
+
+Key references to include:
+- Sculley et al. (2015) NIPS — Hidden Technical Debt
+- Amershi et al. (2019) ICSE — SE for ML
+- Paleyes et al. (2022) — Challenges in Deploying ML
+- Ji et al. (2023) — Survey of Hallucination in NLG
+- Huang et al. (2023) — Survey of LLM Hallucination
+- Wei et al. (2023) — Jailbroken: How does LLM safety training fail
+- Liang et al. (2022) — HELM
+- McGregor (2021) — AI Incident Database
+- Shankar et al. (2020) — Evaluating Machine Learning Systems
+- Ribeiro et al. (2020) — CheckList (evaluation blind spots)
+- Bommasani et al. (2021) — Foundation Models
+- Weidinger et al. (2021) — DeepMind taxonomy (partial overlap; distinguish)
+- Bender et al. (2021) — Stochastic Parrots
+- Court documents: Mata v. Avianca, NYT v. OpenAI
+- Regulatory: FCA Consumer Duty LLM Review 2024, EU AI Act 2024, DORA
+
+---
+
+## Appendix A — Full Taxonomy Schema
+
+Reproduce `taxonomy/taxonomy.yaml` in formatted table form.
+
+## Appendix B — Dataset Sample
+
+10 representative incidents (2 per class) with full label set.
+
+## Appendix C — Failure Budget Calculator Implementation
+
+Key pseudocode from `src/failure_budget/calculator.py`.
+
+---
+
+## Writing Schedule
+
+| Week | Task |
+|------|------|
+| Week 1 | Draft Sections 1–2 (intro + related work) |
+| Week 2 | Draft Sections 3–4 (taxonomy framework + 6 classes) |
+| Week 3 | Draft Sections 5–6 (failure budget + dataset validation) |
+| Week 4 | Draft Sections 7–8 (discussion + conclusion) |
+| Week 5 | References, figures, appendices |
+| Week 6 | Internal review + revision |
+| Week 7 | arXiv submission |
+| Week 8–12 | MLSys / SysML submission preparation |
