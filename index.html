@@ -1,1634 +1,887 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs</title>
-  <meta name="description" content="A principled, system-level failure taxonomy for production LLMs that goes beyond hallucination. Six failure classes, 50 real-world incidents, and a failure budget framework for SREs." />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs">
+  <meta name="description" content="A principled, system-level failure taxonomy for production LLMs grounded in 50 real-world incidents. Six failure classes, 88% classifier accuracy, and a Failure Budget Framework for SRE teams.">
+  <meta name="keywords" content="LLM failures, production AI, failure taxonomy, hallucination, LLMOps, SRE, failure budget, AI reliability, machine learning, large language models">
+  <meta name="author" content="Priyanka Bajaj">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
 
-  <!-- Bulma CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="LLM Failure Taxonomy">
+  <meta property="og:title" content="Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs">
+  <meta property="og:description" content="50 real-world incidents · Six failure classes (C1–C6) · 88% classifier accuracy · Failure Budget Framework">
+  <meta property="og:url" content="https://priyanka25aug.github.io/llm-failure-taxonomy/">
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs">
+  <meta name="twitter:description" content="50 real-world incidents, six failure classes, 88% classifier accuracy, and a Failure Budget Framework for production LLM reliability.">
+
+  <!-- Academic / Citation -->
+  <meta name="citation_title" content="Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs">
+  <meta name="citation_author" content="Bajaj, Priyanka">
+  <meta name="citation_publication_date" content="2024">
+  <meta name="citation_conference_title" content="NeurIPS 2024 Workshop on Socially Responsible Language Modelling Research">
+  <meta name="citation_pdf_url" content="https://priyanka25aug.github.io/llm-failure-taxonomy/paper/paper.pdf">
+
+  <meta name="theme-color" content="#4338ca">
+  <link rel="icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+  <!-- CDN CSS — Bulma, Font Awesome, Academicons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- MathJax for LaTeX formula -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'],['\\[','\\]']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+  <!-- jQuery -->
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs",
+    "description": "A principled, system-level failure taxonomy for production LLMs grounded in 50 real-world incidents with six failure classes and a Failure Budget Framework.",
+    "author": [{"@type": "Person", "name": "Priyanka Bajaj"}],
+    "datePublished": "2024",
+    "publisher": {"@type": "Organization", "name": "NeurIPS 2024 Workshop"},
+    "url": "https://priyanka25aug.github.io/llm-failure-taxonomy/",
+    "keywords": ["LLM failures", "production AI", "failure taxonomy", "hallucination", "LLMOps"],
+    "isAccessibleForFree": true
+  }
+  </script>
+
+  <title>Beyond Hallucination: LLM Failure Taxonomy | Priyanka Bajaj</title>
 
   <style>
-    /* ─── CSS Variables ─────────────────────────────────── */
+    /* ─── CSS Variables (matching recursivemas.github.io) ─────── */
     :root {
       --rm-primary:      #4338ca;
       --rm-primary-soft: #6366f1;
       --rm-accent:       #0ea5e9;
-      --rm-accent-soft:  #38bdf8;
+      --rm-accent-warm:  #f59e0b;
+      --rm-violet:       #7c3aed;
+      --rm-rose:         #e11d48;
+      --rm-emerald:      #059669;
       --rm-ink:          #0f172a;
-      --rm-muted:        #475569;
-      --rm-surface:      #f8fafc;
-      --rm-border:       #e2e8f0;
-      --rm-card-bg:      #ffffff;
-      --rm-radius:       12px;
-      --rm-radius-sm:    8px;
+      --rm-sub:          #475569;
+      --rm-line:         #e2e8f0;
+      --rm-bg-soft:      #f8fafc;
     }
 
-    /* ─── Base ──────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
+    body { background: #fff; color: var(--rm-ink); font-family: 'Inter', sans-serif; line-height: 1.7; }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      color: var(--rm-ink);
-      background: #ffffff;
-      line-height: 1.7;
+    .section { padding: 3rem 1.5rem; }
+
+    /* ─── HERO ──────────────────────────────────────────── */
+    .hero-banner {
+      position: relative;
+      padding: 4.5rem 1.5rem 3rem;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(99,102,241,0.18), transparent 60%),
+        radial-gradient(800px 400px at 100% 0%, rgba(14,165,233,0.18), transparent 60%),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      overflow: hidden;
+      border-bottom: 1px solid var(--rm-line);
     }
-
-    /* ─── Navbar ────────────────────────────────────────── */
-    .rm-navbar {
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--rm-border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 0.75rem 0;
+    .hero-banner::before {
+      content: ""; position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(15,23,42,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 80%);
+      pointer-events: none;
     }
+    .hero-banner > .container { position: relative; }
 
-    .rm-navbar .container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-
-    .rm-navbar-brand {
-      font-weight: 700;
-      font-size: 0.9rem;
+    .pub-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.35rem 0.9rem; border-radius: 999px;
+      background: rgba(99,102,241,0.10);
       color: var(--rm-primary);
-      text-decoration: none;
+      font-weight: 600; font-size: 0.85rem; letter-spacing: 0.04em;
+      border: 1px solid rgba(99,102,241,0.25);
+    }
+    .pub-title {
+      font-weight: 800 !important; letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #1e1b4b 0%, #4338ca 45%, #0ea5e9 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-top: 0.9rem !important; margin-bottom: 0.6rem !important;
+      font-size: clamp(1.85rem, 4.2vw, 3.25rem) !important;
+      line-height: 1.1 !important;
+    }
+    .pub-subtitle { color: var(--rm-sub); font-weight: 500; max-width: 820px; margin: 0 auto 1rem; font-size: 1.05rem; }
+    .pub-authors { margin: 1.1rem auto 0.5rem; max-width: 940px; line-height: 1.9; color: #1f2937; }
+    .pub-authors a { color: var(--rm-primary); font-weight: 600; text-decoration: none; border-bottom: 1px dashed transparent; transition: all .2s; }
+    .pub-authors a:hover { color: var(--rm-violet); border-bottom-color: var(--rm-violet); }
+    .pub-affil { color: var(--rm-sub); font-size: 0.95rem; margin-top: 0.3rem; }
+
+    .pub-links { margin-top: 1.4rem; display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+    .pub-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 1.1rem; border-radius: 999px;
+      background: #0f172a; color: #fff !important; font-weight: 600;
+      font-size: 0.95rem; text-decoration: none !important;
+      box-shadow: 0 4px 14px rgba(15,23,42,0.18);
+      transition: all .2s; border: 1px solid rgba(255,255,255,0.1);
+    }
+    .pub-btn:hover { transform: translateY(-2px); background: var(--rm-primary); }
+    .pub-btn .icon { font-size: 1rem; }
+
+    /* ─── METRIC STRIP ───────────────────────────────── */
+    .metrics-strip {
+      display: grid; grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 1rem; margin-top: 2.4rem;
+    }
+    @media (max-width: 768px) { .metrics-strip { grid-template-columns: repeat(2,1fr); } }
+    .metric-card {
+      background: #fff; border: 1px solid var(--rm-line); border-radius: 18px;
+      padding: 1.1rem 1.2rem; text-align: center;
+      box-shadow: 0 4px 14px rgba(15,23,42,0.04); transition: all .25s;
+    }
+    .metric-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(67,56,202,0.12); border-color: rgba(67,56,202,0.35); }
+    .metric-num {
+      font-size: 2rem; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #4338ca, #0ea5e9);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+    .metric-label { color: var(--rm-sub); font-size: 0.86rem; font-weight: 500; margin-top: 0.2rem; }
+
+    /* ─── SECTION TITLES ─────────────────────────────── */
+    .rm-section-title {
+      font-weight: 800 !important; letter-spacing: -0.01em;
+      color: var(--rm-ink); position: relative; display: inline-block;
+    }
+    .rm-section-title::after {
+      content: ""; display: block; height: 4px; width: 56px; margin: 0.6rem auto 0;
+      border-radius: 4px; background: linear-gradient(90deg, var(--rm-primary), var(--rm-accent));
+    }
+    .rm-eyebrow {
+      color: var(--rm-primary); font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      font-size: 0.78rem; margin-bottom: 0.4rem; display: block;
+    }
+    .rm-section-sub { color: var(--rm-sub); max-width: 880px; margin: 0.8rem auto 0; font-size: 1.05rem; }
+
+    /* ─── ABSTRACT BOX ───────────────────────────────── */
+    .abstract-box {
+      background: linear-gradient(180deg, #f5f3ff 0%, #eef2ff 100%);
+      border: 1px solid #ddd6fe; border-radius: 22px;
+      padding: 2rem 2.2rem;
+      box-shadow: 0 10px 30px rgba(67,56,202,0.06); position: relative;
+    }
+    .abstract-box::before {
+      content: "TL;DR"; position: absolute; top: -12px; left: 22px;
+      background: linear-gradient(120deg, var(--rm-primary), var(--rm-violet));
+      color: #fff; padding: 0.25rem 0.7rem; border-radius: 999px;
+      font-weight: 700; font-size: 0.72rem; letter-spacing: 0.16em;
+    }
+    .abstract-box p { color: #1f2937; line-height: 1.75; }
+    .hl { display: inline-block; padding: 0.05rem 0.55rem; border-radius: 6px; font-weight: 700; }
+    .hl-i { background: rgba(245,158,11,0.18); color: #92400e; }
+    .hl-g { background: rgba(16,185,129,0.18); color: #065f46; }
+    .hl-b { background: rgba(14,165,233,0.18); color: #075985; }
+
+    /* ─── BG VARIANTS ─────────────────────────────────── */
+    .rm-bg-soft { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); }
+    .rm-bg-tint { background: linear-gradient(180deg, #f5f3ff 0%, #eef2ff 100%); }
+    .rm-bg-dark { background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%); color: #e0e7ff; }
+
+    /* ─── FAILURE CLASS CARDS ────────────────────────── */
+    .class-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 2rem;
+    }
+    @media (max-width: 1100px) { .class-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 640px)  { .class-grid { grid-template-columns: 1fr; } }
+    .class-card {
+      background: #fff; border: 1px solid var(--rm-line); border-radius: 20px;
+      padding: 1.4rem; transition: all .25s;
+      box-shadow: 0 4px 14px rgba(15,23,42,0.04);
+      position: relative; overflow: hidden;
+    }
+    .class-card::before {
+      content: ""; position: absolute; inset: 0 0 auto 0; height: 5px;
+    }
+    .class-card.c1::before { background: linear-gradient(90deg,#6366f1,#818cf8); }
+    .class-card.c2::before { background: linear-gradient(90deg,#0ea5e9,#38bdf8); }
+    .class-card.c3::before { background: linear-gradient(90deg,#e11d48,#f43f5e); }
+    .class-card.c4::before { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+    .class-card.c5::before { background: linear-gradient(90deg,#7c3aed,#a78bfa); }
+    .class-card.c6::before { background: linear-gradient(90deg,#059669,#34d399); }
+    .class-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(67,56,202,0.10); }
+    .class-tag {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.22rem 0.65rem; border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 0.78rem;
+      margin-bottom: 0.7rem;
+    }
+    .class-card.c1 .class-tag { background: rgba(99,102,241,0.12); color: #4338ca; }
+    .class-card.c2 .class-tag { background: rgba(14,165,233,0.12); color: #0369a1; }
+    .class-card.c3 .class-tag { background: rgba(225,29,72,0.10); color: #9f1239; }
+    .class-card.c4 .class-tag { background: rgba(245,158,11,0.14); color: #92400e; }
+    .class-card.c5 .class-tag { background: rgba(124,58,237,0.12); color: #5b21b6; }
+    .class-card.c6 .class-tag { background: rgba(5,150,105,0.12); color: #065f46; }
+    .class-card h4 { font-weight: 800; color: var(--rm-ink); margin-bottom: 0.3rem; font-size: 1rem; }
+    .class-card p { color: var(--rm-sub); font-size: 0.9rem; line-height: 1.55; margin: 0; }
+
+    /* ─── FAILURE BUDGET GRID ────────────────────────── */
+    .budget-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2rem;
+    }
+    @media (max-width: 900px)  { .budget-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 500px)  { .budget-grid { grid-template-columns: 1fr; } }
+    .budget-card {
+      border-radius: 18px; padding: 1.4rem; text-align: center;
+      border: 1px solid var(--rm-line); background: #fff;
+      box-shadow: 0 4px 14px rgba(15,23,42,0.04); transition: all .25s;
+      position: relative; overflow: hidden;
+    }
+    .budget-card::before {
+      content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
+    }
+    .budget-card.fc-a::before { background: linear-gradient(90deg,#e11d48,#f43f5e); }
+    .budget-card.fc-b::before { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+    .budget-card.fc-c::before { background: linear-gradient(90deg,#4338ca,#6366f1); }
+    .budget-card.fc-d::before { background: linear-gradient(90deg,#059669,#34d399); }
+    .budget-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(67,56,202,0.10); }
+    .budget-tier {
+      font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 800;
       letter-spacing: -0.01em;
     }
-
-    .rm-navbar-links {
-      display: flex;
-      gap: 1.5rem;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-
-    .rm-navbar-links a {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--rm-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .rm-navbar-links a:hover { color: var(--rm-primary); }
-
-    /* ─── Hero Banner ───────────────────────────────────── */
-    .hero-banner {
-      background: radial-gradient(ellipse 80% 60% at 50% -10%,
-                    rgba(99,102,241,0.15) 0%,
-                    rgba(14,165,233,0.07) 50%,
-                    transparent 100%),
-                  linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-      padding: 5rem 1.5rem 4rem;
-      text-align: center;
-    }
-
-    .pub-venue {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      background: linear-gradient(135deg, var(--rm-primary), var(--rm-accent));
-      color: #fff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      padding: 0.3rem 0.85rem;
-      border-radius: 999px;
-      margin-bottom: 1.5rem;
-    }
-
-    .pub-title {
-      font-size: clamp(1.8rem, 4vw, 3rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      background: linear-gradient(135deg, var(--rm-primary) 0%, var(--rm-accent) 100%);
-      -webkit-background-clip: text;
+    .fc-a .budget-tier { color: #9f1239; }
+    .fc-b .budget-tier { color: #92400e; }
+    .fc-c .budget-tier { color: #4338ca; }
+    .fc-d .budget-tier { color: #065f46; }
+    .budget-rate {
+      font-size: 2rem; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #4338ca, #0ea5e9);
+      -webkit-background-clip: text; background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
-      max-width: 860px;
-      margin: 0 auto 1.5rem;
+      margin: 0.2rem 0;
     }
+    .budget-desc { color: var(--rm-sub); font-size: 0.82rem; line-height: 1.4; margin-top: 0.25rem; }
+    .budget-use  { color: var(--rm-ink); font-size: 0.82rem; font-weight: 600; margin-top: 0.55rem; font-style: italic; }
 
-    .pub-authors {
-      font-size: 1rem;
-      color: var(--rm-muted);
-      margin-bottom: 0.5rem;
-    }
-
-    .pub-authors a {
-      color: var(--rm-primary);
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .pub-affiliation {
-      font-size: 0.85rem;
-      color: var(--rm-muted);
-      margin-bottom: 2rem;
-    }
-
-    .pub-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.75rem;
-      margin-bottom: 3.5rem;
-    }
-
-    .pub-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.6rem 1.3rem;
-      border-radius: 999px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s;
-      cursor: pointer;
-      border: none;
-    }
-
-    .pub-btn-primary {
-      background: linear-gradient(135deg, var(--rm-primary), var(--rm-primary-soft));
-      color: #fff;
-      box-shadow: 0 4px 14px rgba(67,56,202,0.3);
-    }
-
-    .pub-btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(67,56,202,0.4);
-      color: #fff;
-    }
-
-    .pub-btn-outline {
-      background: #fff;
-      color: var(--rm-primary);
-      border: 2px solid var(--rm-border);
-    }
-
-    .pub-btn-outline:hover {
-      border-color: var(--rm-primary);
-      transform: translateY(-2px);
-      color: var(--rm-primary);
-    }
-
-    /* ─── Metrics Strip ─────────────────────────────────── */
-    .metrics-strip {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1rem;
-      max-width: 760px;
-      margin: 0 auto;
-    }
-
-    .metric-card {
-      background: var(--rm-card-bg);
-      border: 1px solid var(--rm-border);
-      border-radius: var(--rm-radius);
-      padding: 1.25rem 1rem;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .metric-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(67,56,202,0.1);
-    }
-
-    .metric-value {
-      font-size: 2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--rm-primary), var(--rm-accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1;
-      margin-bottom: 0.35rem;
-    }
-
-    .metric-label {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--rm-muted);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    /* ─── Section Scaffolding ───────────────────────────── */
-    .rm-section {
-      padding: 5rem 1.5rem;
-    }
-
-    .rm-section-alt {
-      background: var(--rm-surface);
-    }
-
-    .rm-eyebrow {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--rm-accent);
-      margin-bottom: 0.5rem;
-    }
-
-    .rm-section-title {
-      font-size: clamp(1.4rem, 3vw, 2rem);
-      font-weight: 800;
-      letter-spacing: -0.025em;
-      color: var(--rm-ink);
-      margin-bottom: 1.5rem;
-      position: relative;
-      display: inline-block;
-    }
-
-    .rm-section-title::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 0;
-      width: 40px;
-      height: 3px;
-      background: linear-gradient(90deg, var(--rm-primary), var(--rm-accent));
-      border-radius: 2px;
-    }
-
-    .rm-section-lead {
-      font-size: 1.05rem;
-      color: var(--rm-muted);
-      max-width: 680px;
-      margin-bottom: 2.5rem;
-      line-height: 1.7;
-    }
-
-    /* ─── Abstract Box ──────────────────────────────────── */
-    .abstract-box {
-      background: var(--rm-card-bg);
-      border: 1px solid var(--rm-border);
-      border-left: 4px solid var(--rm-primary);
-      border-radius: var(--rm-radius);
-      padding: 2rem 2rem 1.75rem;
-      max-width: 820px;
-      margin: 0 auto;
-      position: relative;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-    }
-
-    .abstract-box::before {
-      content: 'TL;DR';
-      position: absolute;
-      top: -14px;
-      left: 1.5rem;
-      background: linear-gradient(135deg, var(--rm-primary), var(--rm-primary-soft));
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      padding: 0.25rem 0.75rem;
-      border-radius: 999px;
-    }
-
-    .abstract-box p {
-      font-size: 0.97rem;
-      color: var(--rm-ink);
-      line-height: 1.8;
-      margin: 0;
-    }
-
-    .highlight-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      padding: 0.15rem 0.6rem;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .pill-indigo { background: rgba(99,102,241,0.12); color: var(--rm-primary); }
-    .pill-sky    { background: rgba(14,165,233,0.12); color: #0369a1; }
-    .pill-rose   { background: rgba(244,63,94,0.12);  color: #be123c; }
-    .pill-amber  { background: rgba(245,158,11,0.12); color: #b45309; }
-    .pill-green  { background: rgba(34,197,94,0.12);  color: #15803d; }
-
-    /* ─── Failure Classes Grid ──────────────────────────── */
-    .failure-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.25rem;
-    }
-
-    .failure-card {
-      background: var(--rm-card-bg);
-      border: 1px solid var(--rm-border);
-      border-radius: var(--rm-radius);
-      padding: 1.5rem;
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .failure-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--card-accent, var(--rm-primary));
-    }
-
-    .failure-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(67,56,202,0.1);
-      border-color: var(--rm-primary-soft);
-    }
-
-    .failure-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 38px;
-      height: 38px;
-      background: var(--card-bg-soft, rgba(99,102,241,0.1));
-      border-radius: var(--rm-radius-sm);
-      font-size: 0.8rem;
-      font-weight: 800;
-      color: var(--card-color, var(--rm-primary));
-      margin-bottom: 0.85rem;
+    /* ─── SEVERITY WEIGHTS TABLE ─────────────────────── */
+    .sev-row { display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+    .sev-chip {
+      padding: 0.35rem 1rem; border-radius: 999px; font-weight: 700; font-size: 0.88rem;
       font-family: 'JetBrains Mono', monospace;
     }
+    .sev-crit { background: rgba(225,29,72,0.12); color: #9f1239; }
+    .sev-high { background: rgba(245,158,11,0.14); color: #92400e; }
+    .sev-med  { background: rgba(99,102,241,0.12); color: #4338ca; }
+    .sev-low  { background: rgba(5,150,105,0.12);  color: #065f46; }
 
-    .failure-card h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--rm-ink);
-      margin-bottom: 0.5rem;
+    /* ─── FORMULA BOX ────────────────────────────────── */
+    .formula-box {
+      background: #0f172a; color: #e2e8f0; border-radius: 18px;
+      padding: 1.4rem 1.6rem; font-family: 'JetBrains Mono', monospace;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.18); margin-top: 1.5rem;
+      text-align: center; font-size: 1.05rem; line-height: 1.9;
+    }
+    .formula-box .formula-label { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: #94a3b8; margin-bottom: 0.5rem; }
+    .formula-box .formula-eq { color: #a5b4fc; font-size: 1.1rem; }
+    .formula-key { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; justify-content: center; margin-top: 0.9rem; font-size: 0.8rem; }
+    .formula-key span { color: #94a3b8; }
+    .formula-key span b { color: #e2e8f0; }
+
+    /* ─── INTERACTIVE DEMO ───────────────────────────── */
+    .demo-box {
+      background: #fff; border: 1px solid var(--rm-line); border-radius: 20px;
+      padding: 2rem; box-shadow: 0 4px 24px rgba(15,23,42,0.06); max-width: 860px; margin: 0 auto;
+    }
+    .demo-label {
+      font-size: 0.78rem; font-weight: 700; color: var(--rm-sub);
+      letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 0.5rem;
+    }
+    #demoInput {
+      width: 100%; padding: 0.85rem 1rem;
+      border: 1px solid var(--rm-line); border-radius: 12px;
+      font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--rm-ink);
+      resize: vertical; outline: none; transition: border-color 0.2s;
+      background: var(--rm-bg-soft, #f8fafc);
+    }
+    #demoInput:focus { border-color: var(--rm-primary); }
+    .demo-examples { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 0.75rem 0 1.25rem; }
+    .demo-ex-label { font-size: 0.75rem; color: var(--rm-sub); align-self: center; }
+    .ex-btn {
+      padding: 0.3rem 0.75rem; border-radius: 999px;
+      background: #f1f5f9; border: 1px solid var(--rm-line);
+      color: var(--rm-ink); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      transition: all .18s;
+    }
+    .ex-btn:hover { background: #eef2ff; border-color: rgba(99,102,241,0.35); color: var(--rm-primary); }
+    .classify-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(135deg, var(--rm-primary), var(--rm-primary-soft, #6366f1));
+      color: #fff; border: none; border-radius: 999px;
+      padding: 0.65rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+      transition: all .2s; box-shadow: 0 4px 14px rgba(67,56,202,0.25);
+    }
+    .classify-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(67,56,202,0.3); }
+    #demoResults { display: none; margin-top: 1.75rem; border-top: 1px solid var(--rm-line); padding-top: 1.5rem; }
+    #demoCards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+    .result-card {
+      border-radius: 14px; padding: 1.1rem; border-top-width: 3px; border-top-style: solid;
+    }
+    #demoExplain {
+      background: #f8fafc; border: 1px solid var(--rm-line); border-radius: 12px;
+      padding: 1rem 1.25rem; font-size: 0.86rem; color: var(--rm-sub); line-height: 1.7;
     }
 
-    .failure-card p {
-      font-size: 0.87rem;
-      color: var(--rm-muted);
-      line-height: 1.65;
-      margin-bottom: 0.75rem;
-    }
-
-    .failure-examples {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-    }
-
-    .failure-tag {
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--rm-muted);
-      background: var(--rm-surface);
-      border: 1px solid var(--rm-border);
-      border-radius: 999px;
-      padding: 0.15rem 0.55rem;
-    }
-
-    /* ─── Framework Box ─────────────────────────────────── */
-    .framework-box {
-      background: var(--rm-card-bg);
-      border: 1px solid var(--rm-border);
-      border-radius: var(--rm-radius);
-      padding: 2rem;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
-      margin-bottom: 2rem;
-    }
-
-    .framework-box h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--rm-ink);
-      margin-bottom: 1rem;
-    }
-
-    .budget-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .budget-tier {
-      background: var(--rm-surface);
-      border: 1px solid var(--rm-border);
-      border-radius: var(--rm-radius-sm);
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .budget-tier-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--rm-muted);
-      margin-bottom: 0.4rem;
-    }
-
-    .budget-tier-value {
-      font-size: 1.4rem;
-      font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--tier-color, var(--rm-primary));
-      line-height: 1;
-      margin-bottom: 0.3rem;
-    }
-
-    .budget-tier-desc {
-      font-size: 0.75rem;
-      color: var(--rm-muted);
-    }
-
-    .formula-block {
-      background: #0f172a;
-      border-radius: var(--rm-radius-sm);
-      padding: 1.25rem 1.5rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      color: #e2e8f0;
-      overflow-x: auto;
-      line-height: 1.8;
-    }
-
-    .formula-block .kw { color: #7dd3fc; }
-    .formula-block .fn { color: #a5f3fc; }
-    .formula-block .op { color: #f9a8d4; }
-    .formula-block .cm { color: #64748b; }
-    .formula-block .val { color: #86efac; }
-
-    /* ─── Results Table ─────────────────────────────────── */
-    .results-table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--rm-border);
-      border-radius: var(--rm-radius);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-
-    .results-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
-
-    .results-table th {
-      background: var(--rm-surface);
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--rm-muted);
-      padding: 0.85rem 1.2rem;
-      text-align: left;
-      border-bottom: 2px solid var(--rm-border);
-      white-space: nowrap;
-    }
-
-    .results-table td {
-      padding: 0.85rem 1.2rem;
-      border-bottom: 1px solid var(--rm-border);
-      color: var(--rm-ink);
-      vertical-align: middle;
-    }
-
-    .results-table tr:last-child td { border-bottom: none; }
-
-    .results-table tr:hover td { background: rgba(99,102,241,0.03); }
-
-    .class-badge {
-      display: inline-block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
-      font-weight: 600;
-      padding: 0.15rem 0.55rem;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-
-    .sev-critical { background: rgba(239,68,68,0.12); color: #dc2626; }
-    .sev-high     { background: rgba(245,158,11,0.12); color: #d97706; }
-    .sev-medium   { background: rgba(99,102,241,0.12); color: var(--rm-primary); }
-    .sev-low      { background: rgba(34,197,94,0.12);  color: #15803d; }
-
-    /* ─── Findings Cards ────────────────────────────────── */
-    .findings-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.25rem;
-    }
-
-    .finding-card {
-      background: var(--rm-card-bg);
-      border: 1px solid var(--rm-border);
-      border-radius: var(--rm-radius);
-      padding: 1.5rem;
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .finding-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(67,56,202,0.08);
-    }
-
-    .finding-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: var(--rm-radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-
-    .finding-card h4 {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--rm-ink);
-      margin-bottom: 0.35rem;
-    }
-
-    .finding-card p {
-      font-size: 0.84rem;
-      color: var(--rm-muted);
-      line-height: 1.6;
-      margin: 0;
-    }
-
-    /* ─── Carousel ──────────────────────────────────────── */
-    .carousel-section { overflow: hidden; }
-
-    .carousel-wrap {
-      position: relative;
-    }
-
-    .ex-track-container {
-      overflow: hidden;
-    }
-
-    .ex-track {
-      display: flex;
-      gap: 1.25rem;
-      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      will-change: transform;
-    }
-
-    .ex-card {
-      background: var(--rm-card-bg);
-      border: 1px solid var(--rm-border);
-      border-radius: var(--rm-radius);
-      padding: 1.5rem;
-      min-width: 340px;
-      max-width: 340px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      flex-shrink: 0;
-    }
-
-    .ex-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.85rem;
-    }
-
-    .ex-card-class {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-    }
-
-    .ex-card-sev {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--rm-muted);
-    }
-
-    .ex-card h4 {
-      font-size: 0.93rem;
-      font-weight: 700;
-      color: var(--rm-ink);
-      margin-bottom: 0.5rem;
-    }
-
-    .ex-card p {
-      font-size: 0.84rem;
-      color: var(--rm-muted);
-      line-height: 1.6;
-      margin: 0;
-    }
-
-    .carousel-controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .carousel-arrow {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--rm-card-bg);
-      border: 1px solid var(--rm-border);
-      color: var(--rm-muted);
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .carousel-arrow:hover {
-      border-color: var(--rm-primary);
-      color: var(--rm-primary);
-      box-shadow: 0 2px 8px rgba(67,56,202,0.2);
-    }
-
-    .ex-dots {
-      display: flex;
-      gap: 0.45rem;
-    }
-
-    .ex-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--rm-border);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .ex-dot.active {
-      background: var(--rm-primary);
-      width: 20px;
-      border-radius: 999px;
-    }
-
-    /* ─── BibTeX Box ────────────────────────────────────── */
+    /* ─── BIBTEX ─────────────────────────────────────── */
     .bibtex-box {
-      background: #0f172a;
-      border-radius: var(--rm-radius);
-      padding: 1.5rem;
-      position: relative;
-      max-width: 820px;
-      margin: 0 auto;
+      background: #0f172a; color: #e2e8f0; border-radius: 18px;
+      padding: 1.65rem 1.5rem 1.85rem 1.75rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.88rem;
+      overflow-x: auto; box-shadow: 0 18px 40px rgba(15,23,42,0.18);
+      position: relative; line-height: 1.6;
     }
-
+    .bibtex-box pre { background: transparent !important; color: inherit !important; margin: 0.35rem 0 0 0 !important; padding: 0.4rem 5.75rem 0.2rem 0.15rem !important; white-space: pre; line-height: 1.85; font-size: 0.9rem; letter-spacing: 0.015em; }
     .bibtex-copy {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: rgba(255,255,255,0.08);
-      color: #94a3b8;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: var(--rm-radius-sm);
-      padding: 0.35rem 0.75rem;
-      font-size: 0.78rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: all 0.2s;
+      position: absolute; top: 1.1rem; right: 1.1rem; z-index: 1;
+      background: rgba(255,255,255,0.08); color: #e2e8f0;
+      padding: 0.5rem 0.85rem; border-radius: 10px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.12); font-size: 0.8rem; line-height: 1.2;
+      font-family: 'Inter', sans-serif; transition: background .2s;
     }
+    .bibtex-copy:hover { background: rgba(255,255,255,0.16); }
+    .bibtex-copy.copied { background: rgba(34,197,94,0.25); border-color: rgba(34,197,94,0.4); }
+    .bk { color: #93c5fd; }
+    .bl { color: #86efac; }
+    .bv { color: #fde68a; }
 
-    .bibtex-copy:hover {
-      background: rgba(255,255,255,0.15);
-      color: #e2e8f0;
+    /* ─── INSIGHT BOX ────────────────────────────────── */
+    .insight-box {
+      border-left: 4px solid var(--rm-violet);
+      background: #fafaff; padding: 1rem 1.2rem; border-radius: 12px;
+      color: #1f2937; font-style: italic; margin-top: 1.5rem;
     }
+    .insight-box b { color: var(--rm-violet); font-style: normal; }
 
-    .bibtex-copy.copied {
-      background: rgba(34,197,94,0.2);
-      color: #4ade80;
-      border-color: rgba(34,197,94,0.3);
-    }
-
-    .bibtex-code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.82rem;
-      color: #e2e8f0;
-      white-space: pre;
-      overflow-x: auto;
-      line-height: 1.7;
-      margin: 0;
-    }
-
-    .bibtex-code .bk { color: #7dd3fc; }
-    .bibtex-code .bv { color: #86efac; }
-    .bibtex-code .bl { color: #f9a8d4; }
-
-    /* ─── Footer ────────────────────────────────────────── */
-    .rm-footer {
-      background: var(--rm-ink);
-      color: #94a3b8;
-      text-align: center;
-      padding: 2.5rem 1.5rem;
-      font-size: 0.85rem;
-      line-height: 1.8;
-    }
-
-    .rm-footer a {
-      color: var(--rm-accent-soft);
-      text-decoration: none;
-    }
-
-    .rm-footer a:hover { text-decoration: underline; }
-
-    /* ─── Demo Classifier ───────────────────────────────── */
-    .demo-example-btn {
-      font-size: 0.74rem;
-      font-weight: 600;
-      color: var(--rm-primary);
-      background: rgba(99,102,241,0.08);
-      border: 1px solid rgba(99,102,241,0.2);
-      border-radius: 999px;
-      padding: 0.25rem 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: 'Inter', sans-serif;
-    }
-    .demo-example-btn:hover {
-      background: rgba(99,102,241,0.15);
-      border-color: var(--rm-primary);
-    }
-
-    /* ─── Responsive ────────────────────────────────────── */
-    @media (max-width: 600px) {
-      .rm-navbar-links { display: none; }
-      .hero-banner { padding: 3.5rem 1rem 3rem; }
-      .pub-title { font-size: 1.5rem; }
-      .ex-card { min-width: 280px; max-width: 280px; }
-    }
+    /* ─── FOOTER ─────────────────────────────────────── */
+    footer.footer { background: #f8fafc; border-top: 1px solid var(--rm-line); }
+    footer .content { color: var(--rm-sub); }
+    footer .content a { color: var(--rm-primary); }
   </style>
 </head>
 <body>
 
-  <!-- ════════════════ NAVBAR ════════════════ -->
-  <nav class="rm-navbar">
-    <div class="container">
-      <a href="#" class="rm-navbar-brand">LLM Failure Taxonomy</a>
-      <ul class="rm-navbar-links">
-        <li><a href="#abstract">Abstract</a></li>
-        <li><a href="#taxonomy">Taxonomy</a></li>
-        <li><a href="#framework">Budget</a></li>
-        <li><a href="#results">Results</a></li>
-        <li><a href="#bibtex">Cite</a></li>
-      </ul>
-    </div>
-  </nav>
+<!-- ══════════════════════════════════ HERO ══════════════════════════════════ -->
+<section class="hero-banner">
+  <div class="container is-max-desktop has-text-centered">
 
-  <!-- ════════════════ HERO ════════════════ -->
-  <header class="hero-banner">
-    <div class="pub-venue">
-      <i class="fas fa-star"></i>
-      NeurIPS 2024 Workshop
-    </div>
+    <span class="pub-eyebrow">
+      <i class="fas fa-flask" style="font-size:0.8rem;"></i>
+      NeurIPS 2024 Workshop · Socially Responsible Language Modelling Research
+    </span>
 
-    <h1 class="pub-title">
-      Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs
+    <h1 class="title pub-title">
+      Beyond Hallucination:<br>A System-Level Failure Taxonomy for Production LLMs
     </h1>
 
-    <p class="pub-authors">
-      <a href="https://github.com/priyanka25aug" target="_blank">Priyanka Bajaj</a>
+    <p class="pub-subtitle">
+      50 real-world incidents &bull; Six failure classes (C1–C6) &bull; 88% classifier accuracy &bull; Failure Budget Framework
     </p>
-    <p class="pub-affiliation">Independent Researcher</p>
 
-    <div class="pub-buttons">
-      <a href="https://github.com/priyanka25aug/llm-failure-taxonomy" target="_blank" class="pub-btn pub-btn-primary">
-        <i class="fab fa-github"></i> GitHub
+    <div class="pub-authors is-size-5 has-text-centered">
+      <a href="https://github.com/priyanka25aug" target="_blank">Priyanka Bajaj</a>
+      <div class="pub-affil">Independent Researcher &nbsp;·&nbsp; 2024</div>
+    </div>
+
+    <div class="pub-links">
+      <a href="paper/paper.pdf" target="_blank" class="pub-btn">
+        <span class="icon"><i class="fas fa-file-pdf"></i></span>
+        <span>Paper</span>
       </a>
-      <a href="paper/paper.pdf" target="_blank" class="pub-btn pub-btn-outline">
-        <i class="fas fa-file-pdf"></i> Paper (PDF)
+      <a href="https://github.com/priyanka25aug/llm-failure-taxonomy" target="_blank" class="pub-btn">
+        <span class="icon"><i class="fab fa-github"></i></span>
+        <span>Code</span>
       </a>
-      <a href="paper/arxiv_submission.zip" class="pub-btn pub-btn-outline">
-        <i class="fas fa-download"></i> LaTeX Source
+      <a href="paper/arxiv_submission.zip" target="_blank" class="pub-btn">
+        <span class="icon"><i class="fas fa-file-archive"></i></span>
+        <span>LaTeX Source</span>
       </a>
-      <a href="#taxonomy" class="pub-btn pub-btn-outline">
-        <i class="fas fa-sitemap"></i> Taxonomy
+      <a href="https://zenodo.org/doi/10.5281/zenodo.19986565" target="_blank" class="pub-btn">
+        <span class="icon"><i class="ai ai-zenodo"></i></span>
+        <span>Zenodo DOI</span>
       </a>
     </div>
 
-    <!-- Metrics Strip -->
+    <!-- Metric Strip -->
     <div class="metrics-strip">
       <div class="metric-card">
-        <div class="metric-value">50%</div>
+        <div class="metric-num">50%</div>
         <div class="metric-label">Silent Failures</div>
       </div>
       <div class="metric-card">
-        <div class="metric-value">6</div>
+        <div class="metric-num">6</div>
         <div class="metric-label">Failure Classes</div>
       </div>
       <div class="metric-card">
-        <div class="metric-value">50</div>
+        <div class="metric-num">50</div>
         <div class="metric-label">Real-World Incidents</div>
       </div>
       <div class="metric-card">
-        <div class="metric-value">88%</div>
+        <div class="metric-num">88%</div>
         <div class="metric-label">Classifier Accuracy</div>
       </div>
     </div>
-  </header>
 
-  <!-- ════════════════ ABSTRACT ════════════════ -->
-  <section id="abstract" class="rm-section" style="padding-top: 4rem;">
-    <div class="container" style="max-width: 860px; margin: 0 auto; text-align: center;">
-      <p class="rm-eyebrow">Overview</p>
-      <h2 class="rm-section-title" style="display: block; text-align: left; max-width: 860px;">Abstract</h2>
+  </div>
+</section>
 
-      <div class="abstract-box" style="text-align: left; margin-top: 2rem;">
-        <p>
-          Production deployments of large language models reveal failure modes that extend far beyond hallucination.
-          We present a
-          <span class="highlight-pill pill-indigo">principled, system-level failure taxonomy</span>
-          grounded in
-          <span class="highlight-pill pill-sky">50 real-world incidents</span>
-          across diverse production environments. Our taxonomy defines
-          <span class="highlight-pill pill-amber">six failure classes (C1–C6)</span>
-          — spanning factual errors, instruction-following violations, safety failures, context-handling
-          degradation, agentic execution errors, and latent misalignments — together with
-          <span class="highlight-pill pill-rose">88% multi-label classifier accuracy</span>
-          for automated triage.
-          <br/><br/>
-          We introduce a
-          <span class="highlight-pill pill-green">Failure Budget Framework</span>
-          analogous to error budgets in SRE, providing risk-class thresholds and a weighted utilization
-          formula that production teams can operationalize immediately. The taxonomy fills a critical
-          gap: while hallucination benchmarks treat LLM quality as a static property, our framework
-          treats it as a dynamic, operational signal requiring continuous measurement and alerting.
-        </p>
-      </div>
-    </div>
-  </section>
 
-  <!-- ════════════════ TAXONOMY ════════════════ -->
-  <section id="taxonomy" class="rm-section rm-section-alt">
-    <div class="container">
-      <p class="rm-eyebrow">Core Contribution</p>
-      <h2 class="rm-section-title">Six Failure Classes</h2>
-      <p class="rm-section-lead">
-        Each class is defined by observable, system-level signals — not model internals — making the taxonomy
-        actionable for SREs, red teams, and product engineers without requiring model access.
-      </p>
-
-      <div class="failure-grid">
-
-        <!-- C1 -->
-        <div class="failure-card" style="--card-accent: #6366f1; --card-bg-soft: rgba(99,102,241,0.1); --card-color: #4338ca;">
-          <div class="failure-badge">C1</div>
-          <h3>Factual &amp; Semantic Errors</h3>
+<!-- ══════════════════════════════════ ABSTRACT ═══════════════════════════════ -->
+<section class="section rm-bg-soft">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <span class="rm-eyebrow">Abstract</span>
+        <h2 class="title is-3 rm-section-title">Research Summary</h2>
+        <div class="abstract-box" style="text-align: left; margin-top: 2rem;">
           <p>
-            Outputs that are factually incorrect, numerically inconsistent, or semantically
-            contradictory relative to ground truth or the prompt context. Includes hallucinated
-            citations, wrong dates, and fabricated statistics.
+            Production deployments of large language models reveal failure modes that extend far beyond
+            hallucination. We present a principled, system-level failure taxonomy grounded in
+            <span class="hl hl-i">50 real-world incidents</span> across diverse production environments.
+            Our taxonomy defines <span class="hl hl-g">six failure classes (C1–C6)</span> — spanning factual
+            errors, instruction-following violations, safety failures, context-handling degradation,
+            agentic execution errors, and latent misalignments — together with
+            <span class="hl hl-b">88% multi-label classifier accuracy</span> for automated triage.
           </p>
-          <div class="failure-examples">
-            <span class="failure-tag">Hallucination</span>
-            <span class="failure-tag">Numeric error</span>
-            <span class="failure-tag">Citation fabrication</span>
-            <span class="failure-tag">Self-contradiction</span>
-          </div>
-        </div>
-
-        <!-- C2 -->
-        <div class="failure-card" style="--card-accent: #0ea5e9; --card-bg-soft: rgba(14,165,233,0.1); --card-color: #0369a1;">
-          <div class="failure-badge" style="color: #0369a1; background: rgba(14,165,233,0.1);">C2</div>
-          <h3>Instruction-Following Failures</h3>
-          <p>
-            The model ignores, partially complies with, or over-interprets explicit instructions.
-            Includes format violations (wrong JSON schema, missing fields), persona drift, and
-            constraint violations (length, language, scope).
+          <p style="margin-top: 0.75rem;">
+            We introduce a <strong>Failure Budget Framework</strong> analogous to error budgets in SRE,
+            providing risk-class thresholds and a weighted utilization formula that production teams
+            can operationalize immediately. Our key finding: <strong>50% of production LLM failures are
+            silent</strong> — undetectable without purpose-built observability infrastructure.
           </p>
-          <div class="failure-examples">
-            <span class="failure-tag">Format violation</span>
-            <span class="failure-tag">Persona drift</span>
-            <span class="failure-tag">Constraint ignore</span>
-            <span class="failure-tag">Partial compliance</span>
-          </div>
-        </div>
-
-        <!-- C3 -->
-        <div class="failure-card" style="--card-accent: #f43f5e; --card-bg-soft: rgba(244,63,94,0.1); --card-color: #be123c;">
-          <div class="failure-badge" style="color: #be123c; background: rgba(244,63,94,0.1);">C3</div>
-          <h3>Safety &amp; Policy Violations</h3>
-          <p>
-            Outputs that violate safety guardrails, produce harmful content, expose PII, or
-            circumvent moderation systems. Also includes refusal failures — over-refusal on benign
-            requests and under-refusal on genuinely harmful ones.
-          </p>
-          <div class="failure-examples">
-            <span class="failure-tag">Harmful content</span>
-            <span class="failure-tag">PII exposure</span>
-            <span class="failure-tag">Over-refusal</span>
-            <span class="failure-tag">Guardrail bypass</span>
-          </div>
-        </div>
-
-        <!-- C4 -->
-        <div class="failure-card" style="--card-accent: #f59e0b; --card-bg-soft: rgba(245,158,11,0.1); --card-color: #b45309;">
-          <div class="failure-badge" style="color: #b45309; background: rgba(245,158,11,0.1);">C4</div>
-          <h3>Context-Handling Degradation</h3>
-          <p>
-            Performance failures tied to context window management: lost information in long
-            contexts, recency bias, inability to reconcile contradictory context chunks, and
-            retrieval-augmented generation (RAG) attribution errors.
-          </p>
-          <div class="failure-examples">
-            <span class="failure-tag">Context loss</span>
-            <span class="failure-tag">Recency bias</span>
-            <span class="failure-tag">RAG attribution</span>
-            <span class="failure-tag">Context contradiction</span>
-          </div>
-        </div>
-
-        <!-- C5 -->
-        <div class="failure-card" style="--card-accent: #8b5cf6; --card-bg-soft: rgba(139,92,246,0.1); --card-color: #6d28d9;">
-          <div class="failure-badge" style="color: #6d28d9; background: rgba(139,92,246,0.1);">C5</div>
-          <h3>Agentic Execution Errors</h3>
-          <p>
-            Failures specific to agentic or tool-use deployments: wrong tool selection, malformed
-            tool arguments, infinite planning loops, premature task termination, and irreversible
-            real-world actions from misplanned sequences.
-          </p>
-          <div class="failure-examples">
-            <span class="failure-tag">Wrong tool call</span>
-            <span class="failure-tag">Planning loop</span>
-            <span class="failure-tag">Premature stop</span>
-            <span class="failure-tag">Irreversible action</span>
-          </div>
-        </div>
-
-        <!-- C6 -->
-        <div class="failure-card" style="--card-accent: #10b981; --card-bg-soft: rgba(16,185,129,0.1); --card-color: #047857;">
-          <div class="failure-badge" style="color: #047857; background: rgba(16,185,129,0.1);">C6</div>
-          <h3>Latent Misalignment</h3>
-          <p>
-            Subtle, systematic biases that only emerge over large output corpora or adversarial
-            probing: sycophantic drift, demographic representation imbalances, implicit value
-            steering, and deceptive compliance — outputs that appear correct but subvert intent.
-          </p>
-          <div class="failure-examples">
-            <span class="failure-tag">Sycophancy</span>
-            <span class="failure-tag">Demographic bias</span>
-            <span class="failure-tag">Deceptive compliance</span>
-            <span class="failure-tag">Value drift</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════════════ FAILURE BUDGET ════════════════ -->
-  <section id="framework" class="rm-section">
-    <div class="container">
-      <p class="rm-eyebrow">Operationalization</p>
-      <h2 class="rm-section-title">Failure Budget Framework</h2>
-      <p class="rm-section-lead">
-        Analogous to SRE error budgets, failure budgets give production teams a quantitative,
-        risk-stratified threshold for acceptable LLM failure rates — enabling automated alerting
-        and continuous quality SLOs.
-      </p>
-
-      <!-- Risk Tier Budgets -->
-      <div class="framework-box">
-        <h3><i class="fas fa-shield-halved" style="color: var(--rm-primary); margin-right: 0.5rem;"></i>Risk-Class Budget Thresholds</h3>
-        <div class="budget-grid">
-          <div class="budget-tier">
-            <div class="budget-tier-label">FC-A · Critical</div>
-            <div class="budget-tier-value" style="--tier-color: #dc2626;">0.1%</div>
-            <div class="budget-tier-desc">Medical, legal, financial decisions</div>
-          </div>
-          <div class="budget-tier">
-            <div class="budget-tier-label">FC-B · High</div>
-            <div class="budget-tier-value" style="--tier-color: #d97706;">0.5%</div>
-            <div class="budget-tier-desc">Customer-facing production</div>
-          </div>
-          <div class="budget-tier">
-            <div class="budget-tier-label">FC-C · Medium</div>
-            <div class="budget-tier-value" style="--tier-color: var(--rm-primary);">2%</div>
-            <div class="budget-tier-desc">Internal tools, assisted tasks</div>
-          </div>
-          <div class="budget-tier">
-            <div class="budget-tier-label">FC-D · Low</div>
-            <div class="budget-tier-value" style="--tier-color: #15803d;">10%</div>
-            <div class="budget-tier-desc">Exploratory, best-effort use cases</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Severity Weights -->
-      <div class="framework-box">
-        <h3><i class="fas fa-weight-hanging" style="color: var(--rm-accent); margin-right: 0.5rem;"></i>Severity Weights</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem;">
-          <span class="highlight-pill pill-rose"><i class="fas fa-circle-xmark"></i> Critical &nbsp;w = 3</span>
-          <span class="highlight-pill pill-amber"><i class="fas fa-triangle-exclamation"></i> High &nbsp;w = 2</span>
-          <span class="highlight-pill pill-indigo"><i class="fas fa-info-circle"></i> Medium &nbsp;w = 1</span>
-          <span class="highlight-pill pill-green"><i class="fas fa-circle-check"></i> Low &nbsp;w = 0.5</span>
-        </div>
-        <p style="font-size: 0.88rem; color: var(--rm-muted); margin: 0;">
-          Severity weights allow a single critical failure to consume more budget than multiple low-severity events,
-          properly reflecting real-world operational impact.
-        </p>
-      </div>
-
-      <!-- Formula -->
-      <div class="framework-box">
-        <h3><i class="fas fa-function" style="color: var(--rm-primary-soft); margin-right: 0.5rem;"></i>Utilization Formula</h3>
-        <div class="formula-block">
-<span class="cm"># Failure budget for a given use case tier</span>
-<span class="kw">B</span>(u) = ρ( risk_class(u) )
-
-<span class="cm"># Weighted utilization at time t</span>
-<span class="kw">U</span>(u, t) = [ Σ <span class="fn">w</span>(e.severity) / ( N(u,t) / <span class="val">1000</span> ) ] × <span class="val">100%</span> / B(u)
-
-<span class="cm"># Severity weights</span>
-<span class="fn">w</span>(critical) = <span class="val">3.0</span>    <span class="cm"># irreversible or safety-critical</span>
-<span class="fn">w</span>(high)     = <span class="val">2.0</span>    <span class="cm"># significant user impact</span>
-<span class="fn">w</span>(medium)   = <span class="val">1.0</span>    <span class="cm"># degraded experience</span>
-<span class="fn">w</span>(low)      = <span class="val">0.5</span>    <span class="cm"># minor or cosmetic issues</span>
-
-<span class="cm"># Alert when U(u, t) ≥ 80% → approaching budget</span>
-<span class="cm"># Freeze new traffic when U(u, t) ≥ 100% → budget exhausted</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════════════ RESULTS ════════════════ -->
-  <section id="results" class="rm-section rm-section-alt">
-    <div class="container">
-      <p class="rm-eyebrow">Empirical Evaluation</p>
-      <h2 class="rm-section-title">Dataset &amp; Classifier Results</h2>
-      <p class="rm-section-lead">
-        Evaluated on 50 annotated production incidents spanning 5 industry verticals. Multi-label
-        classification supports co-occurring failure classes, reflecting the composite nature of
-        real-world LLM failures.
-      </p>
-
-      <div class="results-table-wrap" style="margin-bottom: 2rem;">
-        <table class="results-table">
-          <thead>
-            <tr>
-              <th>Failure Class</th>
-              <th>Description</th>
-              <th>Incident Share</th>
-              <th>Classifier F1</th>
-              <th>Dominant Severity</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="class-badge pill-indigo">C1 · Factual</span></td>
-              <td>Factual &amp; semantic errors</td>
-              <td>34%</td>
-              <td>0.91</td>
-              <td><span class="class-badge sev-high">High</span></td>
-            </tr>
-            <tr>
-              <td><span class="class-badge pill-sky">C2 · Instruction</span></td>
-              <td>Instruction-following failures</td>
-              <td>28%</td>
-              <td>0.89</td>
-              <td><span class="class-badge sev-medium">Medium</span></td>
-            </tr>
-            <tr>
-              <td><span class="class-badge sev-critical">C3 · Safety</span></td>
-              <td>Safety &amp; policy violations</td>
-              <td>16%</td>
-              <td>0.93</td>
-              <td><span class="class-badge sev-critical">Critical</span></td>
-            </tr>
-            <tr>
-              <td><span class="class-badge sev-high">C4 · Context</span></td>
-              <td>Context-handling degradation</td>
-              <td>12%</td>
-              <td>0.84</td>
-              <td><span class="class-badge sev-medium">Medium</span></td>
-            </tr>
-            <tr>
-              <td><span class="class-badge" style="background:rgba(139,92,246,0.12);color:#6d28d9;">C5 · Agentic</span></td>
-              <td>Agentic execution errors</td>
-              <td>6%</td>
-              <td>0.86</td>
-              <td><span class="class-badge sev-critical">Critical</span></td>
-            </tr>
-            <tr>
-              <td><span class="class-badge sev-low">C6 · Latent</span></td>
-              <td>Latent misalignment</td>
-              <td>4%</td>
-              <td>0.78</td>
-              <td><span class="class-badge sev-low">Low–Med</span></td>
-            </tr>
-            <tr style="background: rgba(99,102,241,0.03);">
-              <td><strong>Overall</strong></td>
-              <td>Macro-averaged (multi-label)</td>
-              <td><strong>50 incidents</strong></td>
-              <td><strong>0.88</strong></td>
-              <td>—</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Key Findings -->
-      <p class="rm-eyebrow" style="margin-top: 2rem;">Key Findings</p>
-      <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem;">What the Data Reveals</h3>
-      <div class="findings-grid">
-
-        <div class="finding-card">
-          <div class="finding-icon" style="background: rgba(244,63,94,0.1); color: #dc2626;">
-            <i class="fas fa-ghost"></i>
-          </div>
-          <div>
-            <h4>50% Are Silent Failures</h4>
-            <p>Half of all incidents produce no explicit error signal — the model returns a
-            confident, well-formed response that is nonetheless wrong or harmful.</p>
-          </div>
-        </div>
-
-        <div class="finding-card">
-          <div class="finding-icon" style="background: rgba(245,158,11,0.1); color: #d97706;">
-            <i class="fas fa-layer-group"></i>
-          </div>
-          <div>
-            <h4>Multi-Class Co-Occurrence</h4>
-            <p>38% of incidents involve two or more co-occurring failure classes, making
-            single-label classification insufficient for real production triage.</p>
-          </div>
-        </div>
-
-        <div class="finding-card">
-          <div class="finding-icon" style="background: rgba(139,92,246,0.1); color: #6d28d9;">
-            <i class="fas fa-robot"></i>
-          </div>
-          <div>
-            <h4>Agentic Failures Are Catastrophic</h4>
-            <p>C5 (Agentic) failures are the lowest in frequency but highest in blast radius —
-            irreversible real-world actions make them disproportionately critical.</p>
-          </div>
-        </div>
-
-        <div class="finding-card">
-          <div class="finding-icon" style="background: rgba(14,165,233,0.1); color: #0369a1;">
-            <i class="fas fa-chart-line"></i>
-          </div>
-          <div>
-            <h4>Context Failures Scale with Length</h4>
-            <p>C4 (Context) failure rate increases non-linearly with context window utilization —
-            deployments using &gt;60% of the context window show 3× higher C4 incidence.</p>
-          </div>
-        </div>
-
-        <div class="finding-card">
-          <div class="finding-icon" style="background: rgba(34,197,94,0.1); color: #15803d;">
-            <i class="fas fa-shield-check"></i>
-          </div>
-          <div>
-            <h4>Safety Detectors Miss 24%</h4>
-            <p>Existing content safety classifiers miss 24% of C3 incidents, primarily
-            over-refusal cases and adversarial jailbreaks using indirect phrasing.</p>
-          </div>
-        </div>
-
-        <div class="finding-card">
-          <div class="finding-icon" style="background: rgba(99,102,241,0.1); color: var(--rm-primary);">
-            <i class="fas fa-budget"></i>
-          </div>
-          <div>
-            <h4>Budgets Enable Proactive SLOs</h4>
-            <p>Teams using failure budgets reduced mean time to detection (MTTD) by 40%
-            compared to threshold-free monitoring, enabling faster rollback decisions.</p>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ════════════════ INCIDENT EXAMPLES ════════════════ -->
-  <section class="rm-section carousel-section">
-    <div class="container">
-      <p class="rm-eyebrow">Real-World Evidence</p>
-      <h2 class="rm-section-title">Incident Examples</h2>
-      <p class="rm-section-lead">
-        Anonymized, real-world production incidents that motivated each failure class definition.
-      </p>
-
-      <div class="carousel-wrap">
-        <div class="ex-track-container">
-          <div class="ex-track" id="exTrack">
-
-            <div class="ex-card">
-              <div class="ex-card-header">
-                <span class="ex-card-class pill-indigo">C1 · Factual</span>
-                <span class="ex-card-sev"><i class="fas fa-circle" style="color: #d97706; font-size: 0.55rem;"></i> High</span>
-              </div>
-              <h4>Drug Interaction Hallucination</h4>
-              <p>A medical information chatbot confidently cited a non-existent clinical trial and fabricated a contraindication between two common medications, returning a plausible-sounding but entirely false safety warning.</p>
-            </div>
-
-            <div class="ex-card">
-              <div class="ex-card-header">
-                <span class="ex-card-class pill-sky">C2 · Instruction</span>
-                <span class="ex-card-sev"><i class="fas fa-circle" style="color: var(--rm-primary); font-size: 0.55rem;"></i> Medium</span>
-              </div>
-              <h4>JSON Schema Violation at Scale</h4>
-              <p>An extraction pipeline required strict JSON output. The model inconsistently omitted a required `confidence` field in ~12% of responses, silently corrupting downstream analytics dashboards for 3 weeks before detection.</p>
-            </div>
-
-            <div class="ex-card">
-              <div class="ex-card-header">
-                <span class="ex-card-class sev-critical">C3 · Safety</span>
-                <span class="ex-card-sev"><i class="fas fa-circle" style="color: #dc2626; font-size: 0.55rem;"></i> Critical</span>
-              </div>
-              <h4>PII Leakage via RAG Context</h4>
-              <p>A customer service assistant retrieved internal documents via RAG containing PII from unrelated customer accounts. The model faithfully included this PII in its response, violating GDPR and triggering an incident response.</p>
-            </div>
-
-            <div class="ex-card">
-              <div class="ex-card-header">
-                <span class="ex-card-class sev-high">C4 · Context</span>
-                <span class="ex-card-sev"><i class="fas fa-circle" style="color: #d97706; font-size: 0.55rem;"></i> High</span>
-              </div>
-              <h4>Long-Context Memory Collapse</h4>
-              <p>In a legal document review system, the model accurately summarized sections 1–8 of a 40-page contract but silently forgot a critical indemnification clause in section 3 when processing section 12, creating liability exposure.</p>
-            </div>
-
-            <div class="ex-card">
-              <div class="ex-card-header">
-                <span class="ex-card-class" style="background:rgba(139,92,246,0.12);color:#6d28d9;">C5 · Agentic</span>
-                <span class="ex-card-sev"><i class="fas fa-circle" style="color: #dc2626; font-size: 0.55rem;"></i> Critical</span>
-              </div>
-              <h4>Irreversible Production Action</h4>
-              <p>An autonomous coding agent, tasked with "cleaning up unused files," incorrectly classified a configuration file as unused and deleted it from a production environment, causing a service outage lasting 47 minutes.</p>
-            </div>
-
-            <div class="ex-card">
-              <div class="ex-card-header">
-                <span class="ex-card-class sev-low">C6 · Latent</span>
-                <span class="ex-card-sev"><i class="fas fa-circle" style="color: #15803d; font-size: 0.55rem;"></i> Low–Med</span>
-              </div>
-              <h4>Sycophantic Drift in Evaluation</h4>
-              <p>A writing assistant systematically rated user-generated content higher when users expressed confidence in their work. This sycophantic bias inflated quality scores by an average of 0.8 points on a 5-point scale over 10,000 sessions.</p>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="carousel-controls">
-          <button class="carousel-arrow" id="prevBtn" aria-label="Previous">
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          <div class="ex-dots" id="exDots"></div>
-          <button class="carousel-arrow" id="nextBtn" aria-label="Next">
-            <i class="fas fa-chevron-right"></i>
-          </button>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ════════════════ LIVE DEMO ════════════════ -->
-  <section id="demo" class="rm-section">
-    <div class="container" style="max-width: 860px; margin: 0 auto;">
-      <p class="rm-eyebrow">Interactive</p>
-      <h2 class="rm-section-title">Try the Classifier</h2>
-      <p class="rm-section-lead">
-        Paste a description of an LLM failure and the classifier will predict its failure class,
-        severity, and failure budget tier — just like the production triage system described in the paper.
+
+<!-- ══════════════════════════════════ SIX FAILURE CLASSES ═══════════════════ -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="has-text-centered">
+      <span class="rm-eyebrow">Taxonomy</span>
+      <h2 class="title is-3 rm-section-title">Six Failure Classes</h2>
+      <p class="rm-section-sub">
+        Each class is defined by a primary failure mechanism, sub-classes, detectability profile,
+        and a failure budget risk tier. Classes are mutually exclusive at the primary level;
+        multi-label co-occurrence occurs in 38% of incidents.
       </p>
+    </div>
 
-      <div id="demoBox" style="background: var(--rm-card-bg); border: 1px solid var(--rm-border); border-radius: var(--rm-radius); padding: 2rem; box-shadow: 0 4px 16px rgba(0,0,0,0.05);">
+    <div class="class-grid">
 
-        <!-- Input -->
-        <label style="font-size: 0.8rem; font-weight: 700; color: var(--rm-muted); letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 0.6rem;">
-          Describe the LLM failure
-        </label>
-        <textarea id="demoInput" rows="4"
-          placeholder="e.g. The model returned a confident answer citing a clinical trial that does not exist, causing the downstream medical decision system to flag a false contraindication..."
-          style="width:100%; padding: 0.85rem 1rem; border: 1px solid var(--rm-border); border-radius: var(--rm-radius-sm); font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--rm-ink); resize: vertical; outline: none; transition: border-color 0.2s; background: var(--rm-surface);"
-          onfocus="this.style.borderColor='var(--rm-primary)'"
-          onblur="this.style.borderColor='var(--rm-border)'"></textarea>
+      <div class="class-card c1">
+        <span class="class-tag">C1 · Factual</span>
+        <h4>Factual &amp; Semantic Errors</h4>
+        <p>Hallucinated citations, fabricated statistics, wrong numbers, or self-contradictory
+        outputs. The model produces plausible-sounding but incorrect content. Classic hallucination.</p>
+      </div>
 
-        <!-- Quick examples -->
-        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 1.25rem;">
-          <span style="font-size: 0.75rem; color: var(--rm-muted); align-self: center;">Try:</span>
-          <button class="demo-example-btn" onclick="loadExample(0)">Hallucinated citation</button>
-          <button class="demo-example-btn" onclick="loadExample(1)">JSON schema violation</button>
-          <button class="demo-example-btn" onclick="loadExample(2)">PII leaked via RAG</button>
-          <button class="demo-example-btn" onclick="loadExample(3)">Agent deleted production file</button>
-          <button class="demo-example-btn" onclick="loadExample(4)">Sycophantic rating drift</button>
-        </div>
+      <div class="class-card c2">
+        <span class="class-tag">C2 · Instruction</span>
+        <h4>Instruction-Following Failures</h4>
+        <p>Format violations, missing required output fields, persona drift, or constraint
+        violations. The model ignores, partially follows, or over-interprets explicit instructions.</p>
+      </div>
 
-        <button id="classifyBtn" onclick="runClassifier()"
-          style="background: linear-gradient(135deg, var(--rm-primary), var(--rm-primary-soft)); color: #fff; border: none; border-radius: 999px; padding: 0.65rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;">
-          <i class="fas fa-magnifying-glass-chart"></i> Classify Failure
-        </button>
+      <div class="class-card c3">
+        <span class="class-tag">C3 · Safety</span>
+        <h4>Safety &amp; Policy Violations</h4>
+        <p>PII leakage, harmful content generation, guardrail bypass, or compliance failures.
+        Includes both over-refusal (false positive) and under-refusal (jailbreak) failure modes.</p>
+      </div>
 
-        <!-- Results -->
-        <div id="demoResults" style="display: none; margin-top: 1.75rem; border-top: 1px solid var(--rm-border); padding-top: 1.5rem;">
+      <div class="class-card c4">
+        <span class="class-tag">C4 · Context</span>
+        <h4>Context-Handling Degradation</h4>
+        <p>Long-context memory collapse, recency bias, RAG attribution errors, or contradictory
+        context chunk handling. Failures tied to context window management rather than factual recall.</p>
+      </div>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;" id="demoCards"></div>
+      <div class="class-card c5">
+        <span class="class-tag">C5 · Agentic</span>
+        <h4>Agentic Execution Errors</h4>
+        <p>Wrong tool selection, malformed tool arguments, planning loops, premature termination,
+        or irreversible real-world actions taken without adequate verification or human oversight.</p>
+      </div>
 
-          <div id="demoExplain" style="background: var(--rm-surface); border: 1px solid var(--rm-border); border-radius: var(--rm-radius-sm); padding: 1rem 1.25rem; font-size: 0.86rem; color: var(--rm-muted); line-height: 1.7;"></div>
-        </div>
+      <div class="class-card c6">
+        <span class="class-tag">C6 · Latent</span>
+        <h4>Latent Misalignment</h4>
+        <p>Sycophantic drift, demographic imbalances in outputs, deceptive compliance, or implicit
+        value steering. Subtle and systematic — only detectable via large-scale output corpus analysis.</p>
+      </div>
+
+    </div>
+
+    <div class="insight-box">
+      <b>Key finding:</b> C3 (Safety) and C5 (Agentic) carry the highest blast radius
+      and are the most frequently <em>silent</em> — 68% of C5 incidents went undetected
+      for more than 24 hours. C2 (Instruction) is the most common class at 22% of all incidents.
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════ FAILURE BUDGET ═════════════════════════ -->
+<section class="section rm-bg-tint">
+  <div class="container is-max-desktop">
+    <div class="has-text-centered">
+      <span class="rm-eyebrow">Framework</span>
+      <h2 class="title is-3 rm-section-title">Failure Budget Framework</h2>
+      <p class="rm-section-sub">
+        Analogous to SRE error budgets, each use case is assigned a risk tier (FC-A through FC-D)
+        that defines the maximum weighted failure rate per 1,000 requests.
+      </p>
+    </div>
+
+    <div class="budget-grid">
+      <div class="budget-card fc-a">
+        <div class="budget-tier">FC-A</div>
+        <div class="budget-rate">0.1%</div>
+        <div class="budget-desc">Critical — 1 failure per 1,000 requests maximum</div>
+        <div class="budget-use">Medical · Legal · Financial · Regulatory</div>
+      </div>
+      <div class="budget-card fc-b">
+        <div class="budget-tier">FC-B</div>
+        <div class="budget-rate">0.5%</div>
+        <div class="budget-desc">High — 5 failures per 1,000 requests maximum</div>
+        <div class="budget-use">Customer-facing chatbots · Public APIs</div>
+      </div>
+      <div class="budget-card fc-c">
+        <div class="budget-tier">FC-C</div>
+        <div class="budget-rate">2%</div>
+        <div class="budget-desc">Medium — 20 failures per 1,000 requests maximum</div>
+        <div class="budget-use">Internal tools · Developer workflows</div>
+      </div>
+      <div class="budget-card fc-d">
+        <div class="budget-tier">FC-D</div>
+        <div class="budget-rate">10%</div>
+        <div class="budget-desc">Low — 100 failures per 1,000 requests maximum</div>
+        <div class="budget-use">Research prototypes · Non-production</div>
       </div>
     </div>
-  </section>
 
-  <!-- ════════════════ BIBTEX ════════════════ -->
-  <section id="bibtex" class="rm-section rm-section-alt">
-    <div class="container" style="max-width: 860px; margin: 0 auto;">
-      <p class="rm-eyebrow">Citation</p>
-      <h2 class="rm-section-title">BibTeX</h2>
-      <p class="rm-section-lead">
-        If you find this work useful, please cite our paper.
+    <!-- Severity Weights -->
+    <div style="text-align:center; margin-top: 2rem;">
+      <p class="rm-eyebrow" style="margin-bottom: 0.6rem;">Severity Weights</p>
+      <div class="sev-row">
+        <span class="sev-chip sev-crit">Critical &times; 3</span>
+        <span class="sev-chip sev-high">High &times; 2</span>
+        <span class="sev-chip sev-med">Medium &times; 1</span>
+        <span class="sev-chip sev-low">Low &times; 0.5</span>
+      </div>
+    </div>
+
+    <!-- Budget Utilization Formula -->
+    <div class="formula-box">
+      <div class="formula-label">Budget Utilization Formula</div>
+      <div class="formula-eq">
+        $U(u,t) = \dfrac{\sum_{e \in E(u,t)} w(e.\text{severity})}{N(u,t)/1000} \times \dfrac{100\%}{B(u)}$
+      </div>
+      <div class="formula-key">
+        <span><b>U(u,t)</b> — utilization % for use case u at time t</span>
+        <span><b>w(s)</b> — severity weight (Critical=3, High=2, Medium=1, Low=0.5)</span>
+        <span><b>N(u,t)</b> — total requests in window</span>
+        <span><b>B(u)</b> — budget rate for the assigned FC tier</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════ INTERACTIVE DEMO ══════════════════════ -->
+<section class="section" id="demo">
+  <div class="container is-max-desktop">
+    <div class="has-text-centered">
+      <span class="rm-eyebrow">Interactive</span>
+      <h2 class="title is-3 rm-section-title">Try the Classifier</h2>
+      <p class="rm-section-sub">
+        Paste a failure description and the rule-based classifier predicts which of the six
+        failure classes apply — matching the production triage system described in the paper.
       </p>
+    </div>
 
-      <div class="bibtex-box">
-        <button class="bibtex-copy" id="bibCopyBtn" onclick="copyBibtex()">
-          <i class="far fa-copy"></i> Copy
-        </button>
-        <pre class="bibtex-code" id="bibContent"><span class="bk">@article</span>{bajaj2024llmfailures,
-  <span class="bl">title</span>   = {<span class="bv">Beyond Hallucination: A System-Level Failure
-             Taxonomy for Production LLMs</span>},
-  <span class="bl">author</span>  = {<span class="bv">Bajaj, Priyanka</span>},
-  <span class="bl">journal</span> = {<span class="bv">NeurIPS 2024 Workshop on Socially Responsible Language Modelling Research</span>},
-  <span class="bl">year</span>    = {<span class="bv">2024</span>},
-  <span class="bl">url</span>     = {<span class="bv">https://github.com/priyanka25aug/llm-failure-taxonomy</span>},
-  <span class="bl">note</span>    = {<span class="bv">50 real-world incidents, six failure classes (C1-C6),
-             88\% classifier accuracy, failure budget framework</span>}
+    <div class="demo-box" style="margin-top: 2rem;">
+
+      <label class="demo-label">Describe the LLM failure</label>
+      <textarea id="demoInput" rows="4"
+        placeholder="e.g. The model cited a clinical trial that does not exist, causing a false contraindication to be flagged in a medical decision system."></textarea>
+
+      <div class="demo-examples">
+        <span class="demo-ex-label">Try:</span>
+        <button class="ex-btn" onclick="loadExample(0)">Hallucinated citation</button>
+        <button class="ex-btn" onclick="loadExample(1)">JSON schema violation</button>
+        <button class="ex-btn" onclick="loadExample(2)">PII leaked via RAG</button>
+        <button class="ex-btn" onclick="loadExample(3)">Agent deleted prod file</button>
+        <button class="ex-btn" onclick="loadExample(4)">Sycophantic drift</button>
+      </div>
+
+      <button class="classify-btn" onclick="runClassifier()">
+        <i class="fas fa-magnifying-glass-chart"></i>
+        Classify Failure
+      </button>
+
+      <div id="demoResults">
+        <div id="demoCards"></div>
+        <div id="demoExplain"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════ BIBTEX ════════════════════════════════ -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <div class="has-text-centered" style="margin-bottom: 1.5rem;">
+      <span class="rm-eyebrow">Citation</span>
+      <h2 class="title is-3 rm-section-title">BibTeX</h2>
+    </div>
+    <div class="bibtex-box">
+      <button class="bibtex-copy" id="bibCopyBtn" onclick="copyBibtex()">
+        <i class="far fa-copy"></i> Copy
+      </button>
+      <pre id="bibContent"><span class="bk">@software</span>{bajaj2024llmfailures,
+  <span class="bl">title</span>     = {<span class="bv">Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs</span>},
+  <span class="bl">author</span>    = {<span class="bv">Bajaj, Priyanka</span>},
+  <span class="bl">year</span>      = {<span class="bv">2024</span>},
+  <span class="bl">doi</span>       = {<span class="bv">10.5281/zenodo.19986565</span>},
+  <span class="bl">url</span>       = {<span class="bv">https://zenodo.org/doi/10.5281/zenodo.19986565</span>},
+  <span class="bl">version</span>   = {<span class="bv">v1.0.0</span>},
+  <span class="bl">publisher</span> = {<span class="bv">Zenodo</span>}
 }</pre>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════ FOOTER ════════════════════════════════ -->
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            This page was built using the
+            <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>
+            adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page,
+            with visual design inspired by <a href="https://recursivemas.github.io" target="_blank">RecursiveMAS</a>.
+            Licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>.
+          </p>
+          <p>
+            <a href="https://github.com/priyanka25aug/llm-failure-taxonomy" target="_blank">
+              <i class="fab fa-github"></i> priyanka25aug/llm-failure-taxonomy
+            </a>
+            &nbsp;&bull;&nbsp;
+            DOI: <a href="https://zenodo.org/doi/10.5281/zenodo.19986565" target="_blank">10.5281/zenodo.19986565</a>
+          </p>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</footer>
 
-  <!-- ════════════════ FOOTER ════════════════ -->
-  <footer class="rm-footer">
-    <p>
-      <strong style="color: #e2e8f0;">Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs</strong>
-    </p>
-    <p>
-      <a href="https://github.com/priyanka25aug/llm-failure-taxonomy" target="_blank">
-        <i class="fab fa-github"></i> GitHub Repository
-      </a>
-      &nbsp;·&nbsp;
-      <a href="paper/paper.pdf" target="_blank">
-        <i class="fas fa-file-pdf"></i> Paper PDF
-      </a>
-    </p>
-    <p style="margin-top: 1rem; font-size: 0.8rem; color: #64748b;">
-      © 2024 Priyanka Bajaj · Independent Researcher ·
-      Built with the
-      <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>
-    </p>
-  </footer>
 
-  <!-- ════════════════ SCRIPTS ════════════════ -->
-  <script>
-    // ── Carousel ───────────────────────────────
-    (function() {
-      const track   = document.getElementById('exTrack');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const dotsContainer = document.getElementById('exDots');
+<!-- ══════════════════════════════════ SCRIPTS ═══════════════════════════════ -->
+<script>
+  // ── Demo Classifier ──────────────────────────────────────────────────────
+  var EXAMPLES = [
+    "The model cited a clinical trial that does not exist, causing a false contraindication to be flagged in a medical decision system.",
+    "The model omitted a required confidence field in 12% of responses, silently corrupting analytics dashboards for three weeks.",
+    "The assistant retrieved internal documents via RAG containing PII from unrelated customers and included it in its response, triggering a GDPR incident.",
+    "An autonomous coding agent incorrectly classified a production config file as unused and deleted it, causing a 47-minute outage.",
+    "The writing assistant consistently rated user content higher when users expressed confidence, inflating scores by 0.8 points on a 5-point scale."
+  ];
 
-      const cards = track.querySelectorAll('.ex-card');
-      const total = cards.length;
-      let current = 0;
+  var CLASSES = {
+    C1: {
+      label: "C1 · Factual & Semantic",
+      color: "#4338ca", bg: "rgba(99,102,241,0.08)",
+      severity: "High", budget: "FC-B (0.5%)",
+      desc: "The output contains factually incorrect, hallucinated, or semantically contradictory content — fabricated citations, wrong numbers, self-contradiction.",
+      kw: ["hallucin","fabricat","incorrect","factual","wrong","false","does not exist","non-existent","citation","contradict","inaccurat","untrue"]
+    },
+    C2: {
+      label: "C2 · Instruction-Following",
+      color: "#0369a1", bg: "rgba(14,165,233,0.08)",
+      severity: "Medium", budget: "FC-C (2%)",
+      desc: "The model ignored, partially followed, or over-interpreted explicit instructions — format violations, missing required fields, persona drift, or constraint violations.",
+      kw: ["format","schema","json","field","omit","missing","instruct","constraint","ignor","violat","persona","drift","required field"]
+    },
+    C3: {
+      label: "C3 · Safety & Policy",
+      color: "#9f1239", bg: "rgba(225,29,72,0.08)",
+      severity: "Critical", budget: "FC-A (0.1%)",
+      desc: "The output violates safety guardrails, produces harmful content, leaks PII, or circumvents moderation — including over-refusal and under-refusal failure modes.",
+      kw: ["pii","personal data","privacy","gdpr","harmful","safety","guardrail","refus","jailbreak","leak","expos","data breach","hipaa"]
+    },
+    C4: {
+      label: "C4 · Context Handling",
+      color: "#92400e", bg: "rgba(245,158,11,0.08)",
+      severity: "High", budget: "FC-B (0.5%)",
+      desc: "Failures tied to context window management — lost information in long contexts, recency bias, RAG attribution errors, or contradictory context chunks.",
+      kw: ["context","long","window","rag","retrieval","forgot","lost","recency","bias","attribution","long document","context length"]
+    },
+    C5: {
+      label: "C5 · Agentic Execution",
+      color: "#5b21b6", bg: "rgba(124,58,237,0.08)",
+      severity: "Critical", budget: "FC-A (0.1%)",
+      desc: "Failures in agentic or tool-use deployments — wrong tool selection, malformed arguments, planning loops, premature termination, or irreversible real-world actions.",
+      kw: ["agent","tool","action","delet","execut","loop","plan","autonom","irrevers","outage","production","coding agent","overwrite"]
+    },
+    C6: {
+      label: "C6 · Latent Misalignment",
+      color: "#065f46", bg: "rgba(5,150,105,0.08)",
+      severity: "Low–Medium", budget: "FC-C (2%)",
+      desc: "Subtle, systematic biases emerging over large output corpora — sycophantic drift, demographic imbalances, deceptive compliance, or implicit value steering.",
+      kw: ["sycophant","bias","drift","align","implicit","subtle","systematic","rating","inflat","demographic","flatter","consistently higher"]
+    }
+  };
 
-      // Build dots
-      for (let i = 0; i < total; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'ex-dot' + (i === 0 ? ' active' : '');
-        dot.addEventListener('click', () => goTo(i));
-        dotsContainer.appendChild(dot);
-      }
+  function loadExample(i) {
+    document.getElementById('demoInput').value = EXAMPLES[i];
+    document.getElementById('demoResults').style.display = 'none';
+  }
 
-      function getCardWidth() {
-        if (!cards[0]) return 340;
-        return cards[0].getBoundingClientRect().width + 20; // card + gap
-      }
+  function runClassifier() {
+    var text = document.getElementById('demoInput').value.trim().toLowerCase();
+    if (!text) {
+      var inp = document.getElementById('demoInput');
+      inp.style.borderColor = '#dc2626';
+      inp.placeholder = 'Please enter a failure description first…';
+      setTimeout(function() {
+        inp.style.borderColor = '';
+        inp.placeholder = 'e.g. The model cited a clinical trial that does not exist…';
+      }, 1500);
+      return;
+    }
 
-      function goTo(index) {
-        current = Math.max(0, Math.min(index, total - 1));
-        track.style.transform = `translateX(-${current * getCardWidth()}px)`;
-        dotsContainer.querySelectorAll('.ex-dot').forEach((d, i) => {
-          d.classList.toggle('active', i === current);
-        });
-      }
+    var scores = {};
+    for (var cls in CLASSES) {
+      scores[cls] = CLASSES[cls].kw.filter(function(kw) { return text.indexOf(kw) !== -1; }).length;
+    }
 
-      prevBtn.addEventListener('click', () => goTo(current - 1));
-      nextBtn.addEventListener('click', () => goTo(current + 1));
+    var ranked = Object.keys(scores).sort(function(a, b) { return scores[b] - scores[a]; });
+    var topScore = scores[ranked[0]];
+    var predicted = topScore === 0
+      ? [ranked[0]]
+      : ranked.filter(function(c) { return scores[c] > 0; });
 
-      // Auto-advance every 5 seconds
-      setInterval(() => goTo((current + 1) % total), 5000);
+    var cardsEl = document.getElementById('demoCards');
+    cardsEl.innerHTML = '';
+    predicted.slice(0, 3).forEach(function(cls) {
+      var def = CLASSES[cls];
+      var hits = scores[cls];
+      var conf = topScore === 0 ? 'Low confidence' : hits >= 3 ? 'High confidence' : hits >= 2 ? 'Medium confidence' : 'Low confidence';
+      var confColor = conf === 'High confidence' ? '#059669' : conf === 'Medium confidence' ? '#d97706' : '#64748b';
+      cardsEl.innerHTML +=
+        '<div class="result-card" style="background:' + def.bg + ';border-color:' + def.color + '33;border-top-color:' + def.color + ';">' +
+        '<div style="font-family:\'JetBrains Mono\',monospace;font-size:0.75rem;font-weight:700;color:' + def.color + ';margin-bottom:0.5rem;">' + def.label + '</div>' +
+        '<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;">' +
+        '<span style="font-size:0.72rem;font-weight:600;background:rgba(0,0,0,0.06);border-radius:999px;padding:0.15rem 0.5rem;">⚠ ' + def.severity + '</span>' +
+        '<span style="font-size:0.72rem;font-weight:600;background:rgba(0,0,0,0.06);border-radius:999px;padding:0.15rem 0.5rem;">Budget: ' + def.budget + '</span>' +
+        '</div>' +
+        '<div style="font-size:0.72rem;color:' + confColor + ';font-weight:600;">' + conf + '</div>' +
+        '</div>';
+    });
 
-      // Keyboard navigation
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft')  goTo(current - 1);
-        if (e.key === 'ArrowRight') goTo(current + 1);
-      });
-    })();
+    var topDef = CLASSES[predicted[0]];
+    document.getElementById('demoExplain').innerHTML =
+      '<strong>Why ' + predicted[0] + '?</strong> ' + topDef.desc +
+      (predicted.length > 1
+        ? '<br><br><strong>Also detected:</strong> ' + predicted.slice(1).join(', ') +
+          ' — multi-label co-occurrence is common (38% of incidents involve 2+ classes).'
+        : '');
 
-    // ── BibTeX Copy ────────────────────────────
-    function copyBibtex() {
-      const raw = `@article{bajaj2024llmfailures,
-  title   = {Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs},
-  author  = {Bajaj, Priyanka},
-  journal = {NeurIPS 2024 Workshop on Socially Responsible Language Modelling Research},
-  year    = {2024},
-  url     = {https://github.com/priyanka25aug/llm-failure-taxonomy},
-  note    = {50 real-world incidents, six failure classes (C1-C6), 88\\% classifier accuracy, failure budget framework}
-}`;
-      navigator.clipboard.writeText(raw).then(() => {
-        const btn = document.getElementById('bibCopyBtn');
+    var results = document.getElementById('demoResults');
+    results.style.display = 'block';
+    results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ── BibTeX Copy ──────────────────────────────────────────────────────────
+  function copyBibtex() {
+    var raw = '@software{bajaj2024llmfailures,\n' +
+      '  title     = {Beyond Hallucination: A System-Level Failure Taxonomy for Production LLMs},\n' +
+      '  author    = {Bajaj, Priyanka},\n' +
+      '  year      = {2024},\n' +
+      '  doi       = {10.5281/zenodo.19986565},\n' +
+      '  url       = {https://zenodo.org/doi/10.5281/zenodo.19986565},\n' +
+      '  version   = {v1.0.0},\n' +
+      '  publisher = {Zenodo}\n' +
+      '}';
+    var btn = document.getElementById('bibCopyBtn');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(raw).then(function() {
         btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
         btn.classList.add('copied');
-        setTimeout(() => {
+        setTimeout(function() {
           btn.innerHTML = '<i class="far fa-copy"></i> Copy';
           btn.classList.remove('copied');
         }, 2500);
-      }).catch(() => {
-        // fallback for older browsers
-        const ta = document.createElement('textarea');
-        ta.value = raw;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      });
+      }).catch(function() { fallbackCopy(raw, btn); });
+    } else {
+      fallbackCopy(raw, btn);
     }
+  }
 
-    // ── Demo Classifier ──────────────────────────
-    const EXAMPLES = [
-      "The model returned a confident answer citing a clinical trial that does not exist, causing the downstream medical decision system to flag a false contraindication between two common medications.",
-      "The extraction pipeline required strict JSON output with a required confidence field. The model omitted it in about 12% of responses, silently corrupting analytics dashboards for three weeks.",
-      "A customer service assistant retrieved internal RAG documents containing PII from unrelated customer accounts and included that PII in its response, triggering a GDPR incident.",
-      "An autonomous coding agent tasked with cleaning up unused files incorrectly classified a production configuration file as unused and deleted it, causing a 47-minute service outage.",
-      "A writing assistant consistently rated user-generated content higher when users expressed confidence, inflating quality scores by 0.8 points on a 5-point scale across 10,000 sessions."
-    ];
-
-    const CLASSES = {
-      C1: {
-        label: "C1 · Factual & Semantic",
-        color: "#4338ca", bg: "rgba(99,102,241,0.1)",
-        severity: "High", sevColor: "#d97706",
-        budget: "FC-B (0.5%)",
-        description: "The output contains factually incorrect, hallucinated, or semantically contradictory content — fabricated citations, wrong numbers, or self-contradiction.",
-        keywords: ["hallucin","fabricat","incorrect","factual","wrong","false","does not exist","non-existent","made up","inaccurat","confabul","citation","contradict","inconsist","numerically","false answer","wrong answer","untrue","misleading"]
-      },
-      C2: {
-        label: "C2 · Instruction-Following",
-        color: "#0369a1", bg: "rgba(14,165,233,0.1)",
-        severity: "Medium", sevColor: "#4338ca",
-        budget: "FC-C (2%)",
-        description: "The model ignored, partially followed, or over-interpreted explicit instructions — format violations, missing required fields, persona drift, or constraint violations.",
-        keywords: ["format","schema","json","field","omit","missing","instruct","constraint","ignor","violat","persona","drift","partial","comply","required field","wrong format","structure","template","length"]
-      },
-      C3: {
-        label: "C3 · Safety & Policy",
-        color: "#be123c", bg: "rgba(244,63,94,0.1)",
-        severity: "Critical", sevColor: "#dc2626",
-        budget: "FC-A (0.1%)",
-        description: "The output violates safety guardrails, produces harmful content, leaks PII, or circumvents moderation — including over-refusal and under-refusal failures.",
-        keywords: ["pii","personal data","privacy","gdpr","harmful","unsafe","safety","guardrail","moderat","refus","jailbreak","leak","expos","sensitive","confidential","policy","data breach","personal information","private data","hipaa"]
-      },
-      C4: {
-        label: "C4 · Context Handling",
-        color: "#b45309", bg: "rgba(245,158,11,0.1)",
-        severity: "High", sevColor: "#d97706",
-        budget: "FC-B (0.5%)",
-        description: "Performance failures tied to context window management — lost information in long contexts, recency bias, RAG attribution errors, or contradictory context chunks.",
-        keywords: ["context","long","window","rag","retrieval","forgot","lost","memory","recency","bias","attribution","chunk","long document","missed","context length","earlier","previous section","clause"]
-      },
-      C5: {
-        label: "C5 · Agentic Execution",
-        color: "#6d28d9", bg: "rgba(139,92,246,0.1)",
-        severity: "Critical", sevColor: "#dc2626",
-        budget: "FC-A (0.1%)",
-        description: "Failures specific to agentic or tool-use deployments — wrong tool selection, malformed arguments, planning loops, premature termination, or irreversible real-world actions.",
-        keywords: ["agent","tool","action","delet","execut","loop","plan","autonom","irrevers","outage","production","deploy","pipeline","workflow","coding agent","ran autonomously","performed action","overwrite","database"]
-      },
-      C6: {
-        label: "C6 · Latent Misalignment",
-        color: "#047857", bg: "rgba(16,185,129,0.1)",
-        severity: "Low–Medium", sevColor: "#15803d",
-        budget: "FC-C (2%)",
-        description: "Subtle, systematic biases emerging over large output corpora — sycophantic drift, demographic imbalances, deceptive compliance, or implicit value steering.",
-        keywords: ["sycophant","bias","drift","align","implicit","subtle","systematic","rating","score","inflat","demographic","representation","value","steer","deceiv","flatter","over-positive","consistently higher","consistently rate","approv"]
-      }
-    };
-
-    function loadExample(i) {
-      document.getElementById('demoInput').value = EXAMPLES[i];
-      document.getElementById('demoResults').style.display = 'none';
-    }
-
-    function runClassifier() {
-      const text = document.getElementById('demoInput').value.trim().toLowerCase();
-      if (!text) {
-        const inp = document.getElementById('demoInput');
-        inp.style.borderColor = '#dc2626';
-        inp.placeholder = 'Please enter a failure description first…';
-        setTimeout(() => {
-          inp.style.borderColor = 'var(--rm-border)';
-          inp.placeholder = 'e.g. The model returned a confident answer citing a clinical trial that does not exist…';
-        }, 1500);
-        return;
-      }
-
-      // Score each class by keyword hits
-      const scores = {};
-      for (const [cls, def] of Object.entries(CLASSES)) {
-        scores[cls] = def.keywords.filter(kw => text.includes(kw)).length;
-      }
-
-      const ranked = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-      const topScore = ranked[0][1];
-      const predicted = topScore === 0
-        ? [ranked[0][0]]
-        : ranked.filter(([, s]) => s > 0).map(([c]) => c);
-
-      // Build result cards
-      const cardsEl = document.getElementById('demoCards');
-      cardsEl.innerHTML = '';
-      predicted.slice(0, 3).forEach(cls => {
-        const def = CLASSES[cls];
-        const hits = scores[cls];
-        const conf = topScore === 0 ? 'Low confidence' : hits >= 3 ? 'High confidence' : hits === 2 ? 'Medium confidence' : 'Low confidence';
-        const confColor = conf === 'High confidence' ? '#15803d' : conf === 'Medium confidence' ? '#b45309' : '#64748b';
-        cardsEl.innerHTML += `
-          <div style="background:${def.bg};border:1px solid ${def.color}33;border-radius:var(--rm-radius);padding:1.1rem;border-top:3px solid ${def.color};">
-            <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:700;color:${def.color};margin-bottom:0.5rem;">${def.label}</div>
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.6rem;">
-              <span style="font-size:0.72rem;font-weight:600;background:rgba(0,0,0,0.06);border-radius:999px;padding:0.15rem 0.55rem;color:${def.sevColor};">⚠ ${def.severity}</span>
-              <span style="font-size:0.72rem;font-weight:600;background:rgba(0,0,0,0.06);border-radius:999px;padding:0.15rem 0.55rem;color:var(--rm-muted);">Budget: ${def.budget}</span>
-            </div>
-            <div style="font-size:0.72rem;color:${confColor};font-weight:600;">${conf}</div>
-          </div>`;
-      });
-
-      // Explanation
-      const topDef = CLASSES[predicted[0]];
-      document.getElementById('demoExplain').innerHTML =
-        `<strong style="color:var(--rm-ink);">Why ${predicted[0]}?</strong> ${topDef.description}` +
-        (predicted.length > 1
-          ? `<br/><br/><strong style="color:var(--rm-ink);">Also detected:</strong> ${predicted.slice(1).join(', ')} — multi-label co-occurrence is common (38% of real incidents involve 2+ classes).`
-          : '');
-
-      const results = document.getElementById('demoResults');
-      results.style.display = 'block';
-      results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    // ── Smooth active nav highlight ─────────────
-    const sections = document.querySelectorAll('section[id], header[id]');
-    const navLinks = document.querySelectorAll('.rm-navbar-links a');
-
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          navLinks.forEach(a => {
-            a.style.color = a.getAttribute('href') === '#' + entry.target.id
-              ? 'var(--rm-primary)' : '';
-          });
-        }
-      });
-    }, { rootMargin: '-40% 0px -55% 0px' });
-
-    sections.forEach(s => obs.observe(s));
-  </script>
+  function fallbackCopy(text, btn) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.innerHTML = '<i class="far fa-copy"></i> Copy';
+      btn.classList.remove('copied');
+    }, 2500);
+  }
+</script>
 
 </body>
 </html>
