@@ -394,9 +394,56 @@
     footer.footer { background: #f8fafc; border-top: 1px solid var(--rm-line); }
     footer .content { color: var(--rm-sub); }
     footer .content a { color: var(--rm-primary); }
+
+    /* ─── STICKY NAVBAR ──────────────────────────────── */
+    .site-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--rm-line);
+      padding: 0 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; height: 52px;
+    }
+    .site-nav .nav-brand {
+      font-weight: 800; font-size: 0.9rem; color: var(--rm-primary);
+      text-decoration: none; font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px;
+    }
+    .site-nav .nav-links {
+      display: flex; gap: 0; list-style: none; margin: 0; padding: 0;
+    }
+    .site-nav .nav-links a {
+      font-size: 0.84rem; font-weight: 600; color: var(--rm-sub);
+      text-decoration: none; padding: 0.3rem 0.75rem; border-radius: 8px;
+      transition: all .18s; white-space: nowrap;
+    }
+    .site-nav .nav-links a:hover { color: var(--rm-primary); background: rgba(99,102,241,0.08); }
+    .site-nav .nav-demo-btn {
+      font-size: 0.82rem; font-weight: 700; color: #fff;
+      background: var(--rm-primary); border-radius: 999px;
+      padding: 0.3rem 0.85rem; text-decoration: none; transition: all .18s;
+      white-space: nowrap;
+    }
+    .site-nav .nav-demo-btn:hover { background: var(--rm-violet); }
+    @media (max-width: 680px) {
+      .site-nav .nav-links { display: none; }
+      .site-nav .nav-brand { max-width: 180px; }
+    }
   </style>
 </head>
 <body>
+
+<!-- ══════════════════════════════════ NAVBAR ════════════════════════════════ -->
+<nav class="site-nav">
+  <a href="#" class="nav-brand">LLM Failure Taxonomy</a>
+  <ul class="nav-links">
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#classes">Classes</a></li>
+    <li><a href="#budget">Budget</a></li>
+    <li><a href="#BibTeX">BibTeX</a></li>
+  </ul>
+  <a href="#demo" class="nav-demo-btn">&#9654; Try Demo</a>
+</nav>
 
 <!-- ══════════════════════════════════ HERO ══════════════════════════════════ -->
 <section class="hero-banner">
@@ -464,7 +511,7 @@
 
 
 <!-- ══════════════════════════════════ ABSTRACT ═══════════════════════════════ -->
-<section class="section rm-bg-soft">
+<section class="section rm-bg-soft" id="abstract">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
@@ -494,7 +541,7 @@
 
 
 <!-- ══════════════════════════════════ SIX FAILURE CLASSES ═══════════════════ -->
-<section class="section">
+<section class="section" id="classes">
   <div class="container is-max-desktop">
     <div class="has-text-centered">
       <span class="rm-eyebrow">Taxonomy</span>
@@ -563,7 +610,7 @@
 
 
 <!-- ══════════════════════════════════ FAILURE BUDGET ═════════════════════════ -->
-<section class="section rm-bg-tint">
+<section class="section rm-bg-tint" id="budget">
   <div class="container is-max-desktop">
     <div class="has-text-centered">
       <span class="rm-eyebrow">Framework</span>
@@ -658,11 +705,11 @@
       </div>
 
       <button class="classify-btn" onclick="runClassifier()">
-        <i class="fas fa-magnifying-glass-chart"></i>
+        <i class="fas fa-search"></i>
         Classify Failure
       </button>
 
-      <div id="demoResults">
+      <div id="demoResults" style="display:none;">
         <div id="demoCards"></div>
         <div id="demoExplain"></div>
       </div>
