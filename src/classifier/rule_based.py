@@ -5,7 +5,6 @@ from .models import (
     Severity, Detectability, BlastRadius, FailureRecord
 )
 
-# (pattern, weight) pairs per class
 _CLASS_SIGNALS: Dict[str, List[Tuple[str, float]]] = {
     "CLASS_1_MODEL_DRIFT": [
         (r"upstream model update", 3.0),
@@ -22,6 +21,10 @@ _CLASS_SIGNALS: Dict[str, List[Tuple[str, float]]] = {
         (r"hallucin\w+.*(factual|scientific|domain)", 1.5),
         (r"confabulat\w+ (financial|figure\w*)", 2.0),
         (r"training (distribut\w+|data).*(drift|shift|mismatch)", 2.0),
+        (r"hallucin\w+.*(earning\w+|financ\w+|ratio\w+|figure\w+)", 2.5),
+        (r"(earning\w+|financ\w+).*(hallucin\w+|fabricat\w+|incorrect)", 2.5),
+        (r"outside (their|its|the).*(training|train).*(distribut\w+|data)", 3.0),
+        (r"companies outside.*(training|train)", 2.5),
     ],
     "CLASS_2_INFRASTRUCTURE": [
         (r"p99 latency", 3.0),
@@ -56,6 +59,18 @@ _CLASS_SIGNALS: Dict[str, List[Tuple[str, float]]] = {
         (r"(silent\w*)? truncat\w+.*(context|window|input)", 2.0),
         (r"data exfiltrat\w+", 2.5),
         (r"role.play (framing|bypass)", 2.0),
+        (r"(safety|content|nsfw).*(filter|guard\w+).*(bypass\w*|circumvent\w*|evad\w+)", 3.0),
+        (r"bypass.*(safety|content|nsfw).*(filter|guard\w+)", 3.0),
+        (r"chatbot.*(compli\w+|agre\w+).*(sell|price|request)", 2.5),
+        (r"(manipulat\w+|exploit\w+).*(chatbot|llm).*(respond\w+|compli\w+)", 2.5),
+        (r"prompt\w*.*(chatbot|llm).*(agree\w+|compli\w+|sell)", 2.0),
+        (r"not connected to (live|real.time|current|up.to.date)", 3.0),
+        (r"(hallucin\w+|fabricat\w+).*(availabilit\w+|inventory|stock)", 2.5),
+        (r"(inventory|stock).*(not|no).*(connect\w+|update\w+|real.time)", 2.5),
+        (r"turn [0-9].*(incorrect|wrong|adopt\w+|us\w+)", 2.5),
+        (r"(incorrect|wrong).*(figure\w+|amount\w+|data).*(previous|earlier) turn", 2.5),
+        (r"(adopt\w+|accept\w+|incorporat\w+).*(incorrect|wrong).*(financial|figure|amount)", 2.5),
+        (r"(incorrect|wrong).*(classif\w+|identif\w+).*(object|scene|entity)", 2.0),
     ],
     "CLASS_4_EVALUATION": [
         (r"metric (gaming|collapse)", 3.0),
@@ -71,6 +86,11 @@ _CLASS_SIGNALS: Dict[str, List[Tuple[str, float]]] = {
         (r"real.world (task|performance).*(vs|differ\w+).*(benchmark|eval)", 2.0),
         (r"point.vs.distributional", 2.0),
         (r"mmlu.*(train\w+|contamin\w+)", 2.5),
+        (r"underrepresent\w+.*(eval\w+|test|benchmark)", 2.5),
+        (r"(edge case\w*|lighting condition\w*|corner case\w*).*(eval\w+|test)", 2.0),
+        (r"(benchmark|eval\w+).*(vs|versus|vs\.|compare\w+).*(real.world|production|enterprise|actual)", 2.5),
+        (r"(public|standard).*(benchmark|eval\w+).*(differ\w+|gap|mismatch).*(real|production|enterprise)", 2.5),
+        (r"(perform\w+|score\w+).*(var\w+|differ\w+).*(benchmark|eval).*(enterprise|production|real)", 2.0),
     ],
     "CLASS_5_SAFETY_COMPLIANCE": [
         (r"pii (leak\w*|exfiltrat\w+)", 3.0),
@@ -88,6 +108,21 @@ _CLASS_SIGNALS: Dict[str, List[Tuple[str, float]]] = {
         (r"wrongful (prosecut\w+|convict\w+)", 2.5),
         (r"regulat\w+ (non.complian\w+|violat\w+|scrutin\w+)", 2.0),
         (r"cross.user (contamin\w+|expos\w+)", 2.5),
+        (r"(incorrect|wrong|false|misleading).*(policy|refund|fare|benefit)", 2.5),
+        (r"chatbot.*(told|stated|said).*(customer|user).*(incorrect|wrong|false)", 2.5),
+        (r"(conversation|chat).*(histor|titles).*(other|wrong) user", 3.0),
+        (r"(see|view\w*|access).*(other user|another user).*(conversat|data|histor)", 3.0),
+        (r"confidential.*(surfac\w+|expos\w+|reveal\w+|leak\w+)", 2.5),
+        (r"(email|document|data).*(surfac\w+|expos\w+).*(unauthoris\w+|wrong user|should not)", 2.5),
+        (r"(incorrect|wrong|adult).*(dosage|dose|medication|paediatric|pediatric)", 2.5),
+        (r"pharmacy.*(chatbot|llm|ai).*(dosage|medication|recommend\w+)", 2.5),
+        (r"verbatim.*(section\w+|excerpt\w+|reproduct\w+|licen\w+)", 2.5),
+        (r"(class.action|lawsuit).*(copyright|licen\w+|open.source)", 2.5),
+        (r"GPL.*(licensed|violat\w+|reproduct\w+)", 2.5),
+        (r"(surfac\w+|reveal\w+|expos\w+).*(confidential|sensitive|internal|private)", 2.5),
+        (r"(HR|human resource\w*|internal email\w*|internal doc\w*).*(leak\w+|expos\w+|surfac\w+)", 2.5),
+        (r"(unauthoris\w+|unintended).*(access|expos\w+|surfac\w+)", 2.0),
+        (r"(email|communication\w*|document\w*).*(surfac\w+|expos\w+).*(should not|unintended|wrong)", 2.0),
     ],
     "CLASS_6_OPERATIONAL": [
         (r"monitoring (blind.?spot|gap)", 3.0),
@@ -104,6 +139,19 @@ _CLASS_SIGNALS: Dict[str, List[Tuple[str, float]]] = {
         (r"degradat\w+.*(user complaint\w+|support ticket\w+)", 2.0),
         (r"no (p95|p99|output length) monitor\w+", 2.5),
         (r"weekday.only (alert\w+|schedule)", 2.5),
+        (r"(alert\w+|notif\w+).*(rout\w+|sent|assign\w+).*(wrong|incorrect|right|correct).*team", 2.5),
+        (r"rout\w+.*(wrong|incorrect|right|correct).*(team|queue|department)", 2.5),
+        (r"(alert\w+|flag\w+).*(ml|engineering|dev\w+) team.*(rather|instead).*(compliance|legal|regulat)", 2.5),
+        (r"without.*(shadow.scor\w+|canary|regression eval)", 3.0),
+        (r"deployed.*(without|no|skipp\w+).*(shadow.scor\w+|canary|regression)", 3.0),
+        (r"prompt template.*(change|update).*(without|no|skip\w+)", 2.5),
+        (r"misrout\w+.*(quer\w+|request\w+|ticket\w+)", 3.0),
+        (r"(rout\w+|send\w+).*(wrong|incorrect).*(team|queue|department).*(quer\w+|ticket\w+)", 2.5),
+        (r"(quer\w+|ticket\w+).*(wrong|incorrect).*(team|queue|department)", 2.5),
+        (r"(slo|alert\w+).*(weekday|business hour\w*|weekend)", 2.5),
+        (r"alerting.*(rule|schedule).*(weekday|business hour|only)", 2.5),
+        (r"(breach|violat\w+).*(not alerted|no alert).*(weekend|saturday|sunday|night)", 2.5),
+        (r"latency.*(slo|breach).*(not alerted|no alert|alerting.*(rule|gap|miss\w+))", 3.0),
     ],
 }
 
@@ -253,13 +301,11 @@ def _infer_budget_class(failure_class: str, text: str) -> FailureBudgetClass:
     for pattern, fc, weight in _BUDGET_CLASS_SIGNALS:
         if re.search(pattern, text, re.IGNORECASE):
             scores[fc] += weight
-    # CLASS_5 sub-class overrides
     if failure_class == "CLASS_5_SAFETY_COMPLIANCE":
         if re.search(r"pii|gdpr|right to erasu\w+|hallucin\w+ citation|auditabilit\w+|racial bias", text, re.IGNORECASE):
             scores[FailureBudgetClass.FC_A] += 2.0
         else:
             scores[FailureBudgetClass.FC_B] += 1.0
-    # CLASS_6 operational bias toward FC_C unless compliance-routing
     if failure_class == "CLASS_6_OPERATIONAL":
         if re.search(r"compliance|regulatory|escalat\w+.*(compliance|regulat)", text, re.IGNORECASE):
             scores[FailureBudgetClass.FC_A] += 1.5
