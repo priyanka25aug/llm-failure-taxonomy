@@ -6,6 +6,8 @@ Companion code for: *Beyond Hallucination: A System-Level Failure Taxonomy for P
 
 A structured, empirically-grounded taxonomy of failures observed in production large language model (LLM) systems, together with a labeled incident dataset, a rule-based classifier, a Claude API-powered classifier, and a per-use-case failure budget calculator.
 
+**Dataset on Hugging Face:** [priyanka25aug/llm-failure-incidents](https://huggingface.co/datasets/priyanka25aug/llm-failure-incidents) — 50 labeled real-world LLM incident reports, companion to [arXiv:2608.02786](https://huggingface.co/papers/2608.02786).
+
 ---
 
 ## Failure Taxonomy — 6 Classes
@@ -131,6 +133,7 @@ python src/classifier/llm_classifier.py
 
 ## Dataset Statistics
 
+- **Hugging Face dataset:** [priyanka25aug/llm-failure-incidents](https://huggingface.co/datasets/priyanka25aug/llm-failure-incidents)
 - **Total incidents:** 50
 - **Date range:** 2000–2024
 - **Silent failures:** ~50% (detectability=silent)
